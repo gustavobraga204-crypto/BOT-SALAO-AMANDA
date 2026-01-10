@@ -1,6 +1,6 @@
-# 🤖 Bot de Agendamento para Salão
+# 🤖 Bot de Agendamento para Salão - Amanda Nails Designer
 
-Bot leve e completo para WhatsApp com fluxo de agendamento.
+Bot leve e completo para WhatsApp com fluxo de agendamento e painel administrativo.
 
 ## 🚀 Como usar
 

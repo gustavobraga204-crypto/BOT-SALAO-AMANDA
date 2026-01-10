@@ -2,7 +2,7 @@ import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import QRCode from 'qrcode';
-import { carregarDatabase, obterTodosClientes, obterAgendamentos, cadastrarCliente, salvarAgendamento, clienteExiste, cancelarAgendamento } from './database.js';
+import { carregarDatabase, obterTodosClientes, obterAgendamentos, cadastrarCliente, salvarAgendamento, clienteExiste, cancelarAgendamento, registrarNotificacaoServidor } from './database.js';
 import { registrarNotificacao, qrCodeAtual } from './bot-integrado.js';
 
 const app = express();
@@ -298,6 +298,9 @@ export function notificarMudanca() {
 
 // Registra a função de notificação no bot
 registrarNotificacao(notificarMudanca);
+
+// Registra a função de notificação no database
+registrarNotificacaoServidor(notificarMudanca);
 
 // Inicia servidor
 httpServer.listen(PORT, '0.0.0.0', () => {

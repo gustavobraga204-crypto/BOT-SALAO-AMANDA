@@ -2,6 +2,14 @@ import { readFileSync, writeFileSync, existsSync } from 'fs';
 
 const DB_FILE = './clientes.json';
 
+// Variável para armazenar a função de notificação do servidor
+let funcaoNotificarServidor = null;
+
+// Função para registrar callback de notificação
+export function registrarNotificacaoServidor(funcao) {
+    funcaoNotificarServidor = funcao;
+}
+
 // Estrutura: { telefone: { nome, telefone, dataRegistro, ultimoAcesso } }
 let clientes = {};
 
@@ -95,6 +103,13 @@ export function salvarAgendamento(telefone, agendamento) {
         };
         salvarDatabase();
         console.log(`📅 Agendamento salvo para ${clientes[numeroLimpo].nome}`);
+        
+        // Notifica o painel web
+        if (funcaoNotificarServidor) {
+            funcaoNotificarServidor();
+            console.log('🔄 Painel atualizado');
+        }
+        
         return true;
     }
     return false;
@@ -116,6 +131,13 @@ export function cancelarAgendamento(telefone) {
         delete clientes[numeroLimpo].agendamento;
         salvarDatabase();
         console.log(`❌ Agendamento cancelado para ${clientes[numeroLimpo].nome}`);
+        
+        // Notifica o painel web
+        if (funcaoNotificarServidor) {
+            funcaoNotificarServidor();
+            console.log('🔄 Painel atualizado');
+        }
+        
         return true;
     }
     return false;

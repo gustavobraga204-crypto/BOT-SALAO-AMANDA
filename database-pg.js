@@ -24,7 +24,7 @@ export async function inicializarBancoPG() {
         await pool.query(`
             CREATE TABLE IF NOT EXISTS agendamentos (
                 id SERIAL PRIMARY KEY,
-                telefone VARCHAR(20) REFERENCES clientes(telefone) ON DELETE CASCADE,
+                telefone VARCHAR(20) UNIQUE REFERENCES clientes(telefone) ON DELETE CASCADE,
                 servico_nome VARCHAR(255) NOT NULL,
                 servico_descricao TEXT,
                 servico_valor VARCHAR(50),
@@ -32,8 +32,7 @@ export async function inicializarBancoPG() {
                 adicionais TEXT[],
                 data VARCHAR(20) NOT NULL,
                 horario VARCHAR(10) NOT NULL,
-                data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                UNIQUE(telefone)
+                data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         `);
         

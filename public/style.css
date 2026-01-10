@@ -564,30 +564,98 @@ h1 {
     100% { transform: rotate(360deg); }
 }
 
-@media (max-width: 768px) {
+/* Tablets e telas médias */
+@media (max-width: 1024px) {
+    .container {
+        padding: 0 15px;
+    }
+    
     h1 {
-        font-size: 1.8em;
+        font-size: 2em;
+    }
+    
+    .calendar-grid {
+        gap: 8px;
+    }
+    
+    .calendar-day {
+        min-height: 120px;
+    }
+}
+
+/* Mobile - Telas pequenas */
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+    
+    header {
+        padding: 20px 15px;
+        margin-bottom: 20px;
+    }
+    
+    h1 {
+        font-size: 1.6em;
+    }
+    
+    .subtitle {
+        font-size: 0.95em;
     }
     
     .stats {
         flex-direction: column;
         gap: 10px;
+        width: 100%;
     }
     
     .stat-card {
         width: 100%;
+        flex-direction: row;
+        justify-content: space-between;
+        padding: 15px 20px;
+    }
+    
+    .stat-number {
+        font-size: 1.5em;
+    }
+    
+    .stat-label {
+        font-size: 0.85em;
+    }
+    
+    .btn-primary {
+        width: 100%;
+        padding: 15px;
+        font-size: 1em;
     }
     
     .month-navigation {
-        flex-direction: column;
+        flex-direction: row;
+        gap: 10px;
     }
     
     .nav-btn {
-        width: 100%;
+        flex: 1;
+        padding: 12px;
+    }
+    
+    .month-display {
+        font-size: 1em;
+        padding: 10px;
     }
     
     .calendar-container {
         padding: 10px;
+        border-radius: 15px;
+    }
+    
+    .weekdays {
+        gap: 5px;
+    }
+    
+    .weekday {
+        font-size: 0.75em;
+        padding: 8px 5px;
     }
     
     .calendar-grid {
@@ -595,26 +663,117 @@ h1 {
     }
     
     .calendar-day {
-        min-height: 100px;
+        min-height: 90px;
         padding: 5px;
     }
     
     .day-number {
-        font-size: 0.9em;
+        font-size: 0.85em;
     }
     
     .agendamento-item {
-        font-size: 0.65em;
-        padding: 4px 6px;
+        font-size: 0.6em;
+        padding: 3px 5px;
+        margin-bottom: 3px;
     }
     
-    .month-display {
-        font-size: 1.1em;
+    .agendamento-nome {
+        display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        max-width: 100%;
     }
     
     .modal-content {
         width: 95%;
-        margin: 10% auto;
-        padding: 20px;
+        max-width: 100%;
+        margin: 5% auto;
+        padding: 20px 15px;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+    
+    .modal h2 {
+        font-size: 1.3em;
+    }
+    
+    .form-group label {
+        font-size: 0.9em;
+    }
+    
+    .form-group input,
+    .form-group select {
+        font-size: 0.95em;
+        padding: 12px;
+    }
+    
+    .modal-actions {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .modal-actions .btn {
+        width: 100%;
+    }
+}
+
+/* Mobile pequeno */
+@media (max-width: 480px) {
+    h1 {
+        font-size: 1.4em;
+    }
+    
+    .subtitle {
+        font-size: 0.85em;
+    }
+    
+    .calendar-day {
+        min-height: 80px;
+        padding: 4px;
+    }
+    
+    .day-number {
+        font-size: 0.75em;
+    }
+    
+    .agendamento-item {
+        font-size: 0.55em;
+        padding: 2px 4px;
+    }
+    
+    .weekday {
+        font-size: 0.65em;
+        padding: 6px 3px;
+    }
+    
+    .stat-card {
+        padding: 12px 15px;
+    }
+    
+    .stat-number {
+        font-size: 1.3em;
+    }
+    
+    .nav-btn {
+        font-size: 0.9em;
+        padding: 10px;
+    }
+}
+
+/* Landscape mobile */
+@media (max-height: 500px) and (orientation: landscape) {
+    .modal-content {
+        max-height: 95vh;
+        overflow-y: auto;
+    }
+    
+    header {
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+    
+    .calendar-day {
+        min-height: 70px;
     }
 }

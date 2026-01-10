@@ -56,8 +56,13 @@ export function salvarDatabase() {
 }
 
 // Verifica se cliente existe
-export function clienteExiste(telefone) {
+export async function clienteExiste(telefone) {
     const numeroLimpo = limparTelefone(telefone);
+    
+    if (usarPostgreSQL) {
+        return await clienteExistePG(numeroLimpo);
+    }
+    
     return clientes.hasOwnProperty(numeroLimpo);
 }
 
@@ -74,8 +79,15 @@ export function buscarCliente(telefone) {
 }
 
 // Cadastra novo cliente
-export function cadastrarCliente(telefone, nome) {
+export async function cadastrarCliente(telefone, nome) {
     const numeroLimpo = limparTelefone(telefone);
+    
+    if (usarPostgreSQL) {
+        await salvarClientePG(numeroLimpo, nome);
+        console.log(`✅ Cliente cadastrado: ${nome} (${numeroLimpo})`);
+        return;
+    }
+    
     clientes[numeroLimpo] = {
         nome,
         telefone: numeroLimpo,
@@ -154,8 +166,21 @@ export function buscarAgendamento(telefone) {
 }
 
 // Cancela agendamento do cliente
-export function cancelarAgendamento(telefone) {
+export async function cancelarAgendamento(telefone) {
     const numeroLimpo = limparTelefone(telefone);
+    
+    if (usarPostgreSQL) {
+        const sucesso = await cancelarAgendamentoPG(numeroLimpo);
+        if (sucesso) {
+            console.log(`❌ Agendamento cancelado`);
+            if (funcaoNotificarServidor) {
+                funcaoNotificarServidor();
+                console.log('🔄 Painel atualizado');
+            }
+        }
+        return sucesso;
+    }
+    
     if (clientes[numeroLimpo] && clientes[numeroLimpo].agendamento) {
         delete clientes[numeroLimpo].agendamento;
         salvarDatabase();
@@ -173,7 +198,11 @@ export function cancelarAgendamento(telefone) {
 }
 
 // Retorna todos os clientes com agendamento
-export function obterAgendamentos() {
+export async function obterAgendamentos() {
+    if (usarPostgreSQL) {
+        return await obterAgendamentosPG();
+    }
+    
     return Object.values(clientes)
         .filter(cliente => cliente.agendamento)
         .sort((a, b) => {
@@ -185,8 +214,12 @@ export function obterAgendamentos() {
 }
 
 // Verifica se horário está disponível
-export function horarioDisponivel(data, horario) {
-    const agendamentos = obterAgendamentos();
+export async function horarioDisponivel(data, horario) {
+    if (usarPostgreSQL) {
+        return await horarioDisponivelPG(data, horario);
+    }
+    
+    const agendamentos = await obterAgendamentos();
     return !agendamentos.some(ag => 
         ag.agendamento.data === data && ag.agendamento.horario === horario
     );

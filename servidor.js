@@ -15,8 +15,8 @@ const PORT = process.env.PORT || 3000;
 // Middleware para JSON
 app.use(express.json());
 
-// Carrega database
-carregarDatabase();
+// Carrega database (aguarda se for async)
+await carregarDatabase();
 
 // Servir arquivos estáticos
 app.use(express.static('public'));
@@ -197,15 +197,15 @@ app.get('/qrcode', async (req, res) => {
 });
 
 // API para obter todos os agendamentos
-app.get('/api/agendamentos', (req, res) => {
-    const agendamentos = obterAgendamentos();
+app.get('/api/agendamentos', async (req, res) => {
+    const agendamentos = await obterAgendamentos();
     res.json(agendamentos);
 });
 
 // API para verificar disponibilidade
-app.post('/api/verificar-disponibilidade', (req, res) => {
+app.post('/api/verificar-disponibilidade', async (req, res) => {
     const { data, horario } = req.body;
-    const agendamentos = obterAgendamentos();
+    const agendamentos = await obterAgendamentos();
     const ocupado = agendamentos.some(ag => 
         ag.agendamento.data === data && ag.agendamento.horario === horario
     );
@@ -213,7 +213,7 @@ app.post('/api/verificar-disponibilidade', (req, res) => {
 });
 
 // API para criar novo agendamento (admin)
-app.post('/api/agendamentos', (req, res) => {
+app.post('/api/agendamentos', async (req, res) => {
     try {
         const { nome, telefone, servico, adicionais, data, horario } = req.body;
         
@@ -223,7 +223,7 @@ app.post('/api/agendamentos', (req, res) => {
         }
         
         // Verifica se horário está disponível
-        const agendamentos = obterAgendamentos();
+        const agendamentos = await obterAgendamentos();
         const ocupado = agendamentos.some(ag => 
             ag.agendamento.data === data && ag.agendamento.horario === horario
         );
@@ -236,8 +236,8 @@ app.post('/api/agendamentos', (req, res) => {
         const telefoneLimpo = telefone.replace(/\D/g, '');
         
         // Cadastra cliente se não existir
-        if (!clienteExiste(telefoneLimpo)) {
-            cadastrarCliente(telefoneLimpo, nome);
+        if (!(await clienteExiste(telefoneLimpo))) {
+            await cadastrarCliente(telefoneLimpo, nome);
         }
         
         // Salva agendamento
@@ -248,10 +248,10 @@ app.post('/api/agendamentos', (req, res) => {
             horario
         };
         
-        salvarAgendamento(telefoneLimpo, agendamento);
+        await salvarAgendamento(telefoneLimpo, agendamento);
         
         // Notifica mudança
-        notificarMudanca();
+        await notificarMudanca();
         
         res.json({ sucesso: true, mensagem: 'Agendamento criado com sucesso!' });
     } catch (erro) {
@@ -261,13 +261,13 @@ app.post('/api/agendamentos', (req, res) => {
 });
 
 // API para cancelar agendamento
-app.delete('/api/agendamentos/:telefone', (req, res) => {
+app.delete('/api/agendamentos/:telefone', async (req, res) => {
     try {
         const { telefone } = req.params;
-        const sucesso = cancelarAgendamento(telefone);
+        const sucesso = await cancelarAgendamento(telefone);
         
         if (sucesso) {
-            notificarMudanca();
+            await notificarMudanca();
             res.json({ sucesso: true, mensagem: 'Agendamento cancelado' });
         } else {
             res.status(404).json({ erro: 'Agendamento não encontrado' });
@@ -279,11 +279,11 @@ app.delete('/api/agendamentos/:telefone', (req, res) => {
 });
 
 // WebSocket - conexão de clientes
-io.on('connection', (socket) => {
+io.on('connection', async (socket) => {
     console.log('📱 Cliente conectado ao painel');
     
     // Envia dados iniciais
-    socket.emit('agendamentos', obterAgendamentos());
+    socket.emit('agendamentos', await obterAgendamentos());
     
     socket.on('disconnect', () => {
         console.log('📱 Cliente desconectado do painel');
@@ -291,8 +291,8 @@ io.on('connection', (socket) => {
 });
 
 // Função para notificar mudanças
-export function notificarMudanca() {
-    io.emit('agendamentos', obterAgendamentos());
+export async function notificarMudanca() {
+    io.emit('agendamentos', await obterAgendamentos());
     console.log('🔄 Painel atualizado');
 }
 

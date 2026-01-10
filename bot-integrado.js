@@ -5,8 +5,8 @@ import { fluxos } from './fluxos.js';
 import { carregarDatabase } from './database.js';
 import { notificarMudanca } from './servidor.js';
 
-// Carrega base de dados ao iniciar
-carregarDatabase();
+// Carrega base de dados ao iniciar (aguarda se for async)
+await carregarDatabase();
 
 // Variável global para armazenar a função de notificação
 let funcaoNotificar = null;

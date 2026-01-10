@@ -85,7 +85,7 @@ async function conectar() {
 
             console.log(`📨 ${de.split('@')[0]}: ${texto}`);
 
-            const resposta = fluxos(de, texto.trim());
+            const resposta = await fluxos(de, texto.trim());
             
             if (resposta) {
                 await new Promise(r => setTimeout(r, 1500));

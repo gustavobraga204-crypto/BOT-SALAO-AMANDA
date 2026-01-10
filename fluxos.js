@@ -3,7 +3,7 @@ import { mensagens } from './mensagens.js';
 import { servicos, promocoes, horarios } from './dados.js';
 import { cadastrarCliente, buscarCliente, salvarAgendamento, buscarAgendamento, cancelarAgendamento, horarioDisponivel } from './database.js';
 
-export function fluxos(de, texto) {
+export async function fluxos(de, texto) {
     const sessao = obterSessao(de);
     const entrada = texto.toLowerCase();
 
@@ -171,7 +171,7 @@ Digite *CONFIRMAR* para finalizar ou *CANCELAR* para desistir.`;
                 data: sessao.dados.data,
                 horario: sessao.dados.horario
             };
-            salvarAgendamento(de, agendamentoSalvo);
+            await salvarAgendamento(de, agendamentoSalvo);
             
             atualizarSessao(de, 'menu', { nome, telefone });
             sessao.cadastrado = true;
@@ -261,7 +261,7 @@ Digite *MENU* para voltar ao menu principal`;
         const agendamento = buscarAgendamento(de);
         if (agendamento) {
             agendamento.data = texto;
-            salvarAgendamento(de, agendamento);
+            await salvarAgendamento(de, agendamento);
             atualizarSessao(de, 'menu');
             return mensagens.reagendamento.sucesso(agendamento);
         }
@@ -273,7 +273,7 @@ Digite *MENU* para voltar ao menu principal`;
             const agendamento = buscarAgendamento(de);
             if (agendamento) {
                 agendamento.horario = horarios[numHorario - 1];
-                salvarAgendamento(de, agendamento);
+                await salvarAgendamento(de, agendamento);
                 atualizarSessao(de, 'menu');
                 return mensagens.reagendamento.sucesso(agendamento);
             }
@@ -293,7 +293,7 @@ Digite *MENU* para voltar ao menu principal`;
             if (agendamento) {
                 agendamento.data = sessao.dados.novaData;
                 agendamento.horario = horarios[numHorario - 1];
-                salvarAgendamento(de, agendamento);
+                await salvarAgendamento(de, agendamento);
                 atualizarSessao(de, 'menu');
                 return mensagens.reagendamento.sucesso(agendamento);
             }

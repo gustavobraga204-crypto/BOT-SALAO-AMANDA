@@ -1,0 +1,305 @@
+import { obterSessao, atualizarSessao, limparSessao } from './sessoes.js';
+import { mensagens } from './mensagens.js';
+import { servicos, promocoes, horarios } from './dados.js';
+import { cadastrarCliente, buscarCliente, salvarAgendamento, buscarAgendamento, cancelarAgendamento, horarioDisponivel } from './database.js';
+
+export function fluxos(de, texto) {
+    const sessao = obterSessao(de);
+    const entrada = texto.toLowerCase();
+
+    // FLUXO CADASTRO
+    if (sessao.etapa === 'cadastro_nome') {
+        if (['oi', 'ola', 'olá', 'inicio', 'iniciar'].includes(entrada)) {
+            return mensagens.cadastro.solicitarNome;
+        }
+        atualizarSessao(de, 'cadastro_telefone', { nome: texto });
+        return mensagens.cadastro.solicitarTelefone;
+    }
+
+    if (sessao.etapa === 'cadastro_telefone') {
+        sessao.dados.telefone = texto;
+        sessao.cadastrado = true;
+        
+        // Salva cadastro na database
+        cadastrarCliente(de, sessao.dados.nome);
+        
+        atualizarSessao(de, 'menu', sessao.dados);
+        return mensagens.cadastro.sucesso(sessao.dados.nome) + '\n\n' + mensagens.boasVindas;
+    }
+
+    // Verifica se já está cadastrado antes de acessar menu
+    if (!sessao.cadastrado && !['cadastro_nome', 'cadastro_telefone'].includes(sessao.etapa)) {
+        atualizarSessao(de, 'cadastro_nome');
+        return mensagens.cadastro.solicitarNome;
+    }
+
+    // Menu inicial
+    if (['oi', 'ola', 'olá', 'menu', 'inicio', 'iniciar'].includes(entrada)) {
+        atualizarSessao(de, 'menu');
+        // Verifica se é cliente cadastrado para mensagem personalizada
+        if (sessao.cadastrado && sessao.dados.nome) {
+            return mensagens.boasVindasRetorno(sessao.dados.nome);
+        }
+        return mensagens.boasVindas;
+    }
+
+    // Menu principal
+    if (sessao.etapa === 'menu') {
+        if (entrada === '1') {
+            atualizarSessao(de, 'agendamento_servico', { nome: sessao.dados.nome, telefone: sessao.dados.telefone });
+            return `Ótimo, ${sessao.dados.nome}!\n\n` + mensagens.listarServicos('agendamento');
+        }
+        if (entrada === '2') {
+            atualizarSessao(de, 'servicos');
+            return mensagens.listarServicos();
+        }
+        if (entrada === '3') {
+            atualizarSessao(de, 'promocoes');
+            return mensagens.listarPromocoes();
+        }
+        if (entrada === '4') {
+            atualizarSessao(de, 'atendente');
+            return mensagens.transferirAtendente;
+        }
+        if (entrada === '5') {
+            atualizarSessao(de, 'menu');
+            return mensagens.endereco;
+        }
+        if (entrada === '6') {
+            limparSessao(de);
+            return mensagens.encerrar;
+        }
+        if (entrada === '7') {
+            const agendamento = buscarAgendamento(de);
+            if (agendamento) {
+                atualizarSessao(de, 'cancelar_confirmacao', { agendamento });
+                return mensagens.cancelamento.confirmar(agendamento);
+            } else {
+                return mensagens.cancelamento.naoEncontrado;
+            }
+        }
+        if (entrada === '8') {
+            const agendamento = buscarAgendamento(de);
+            if (agendamento) {
+                atualizarSessao(de, 'reagendar_opcao', { agendamentoAnterior: agendamento });
+                return mensagens.reagendamento.opcoes;
+            } else {
+                return mensagens.reagendamento.naoEncontrado;
+            }
+        }
+    }
+
+    // FLUXO AGENDAMENTO
+    if (sessao.etapa === 'agendamento_nome') {
+        // Usa o nome do cadastro automaticamente
+        atualizarSessao(de, 'agendamento_servico', { nome: sessao.dados.nome, telefone: sessao.dados.telefone });
+        return `Ótimo, ${sessao.dados.nome}!\n\n` + mensagens.listarServicos('agendamento');
+    }
+
+    if (sessao.etapa === 'agendamento_servico') {
+        const numServico = parseInt(entrada);
+        if (numServico > 0 && numServico <= servicos.length) {
+            atualizarSessao(de, 'agendamento_adicionais', { 
+                servico: servicos[numServico - 1],
+                nome: sessao.dados.nome,
+                telefone: sessao.dados.telefone
+            });
+            return mensagens.agendamento.solicitarAdicionais;
+        }
+        return 'Opção inválida. Digite o número do serviço.';
+    }
+
+    if (sessao.etapa === 'agendamento_adicionais') {
+        if (entrada === '0' || entrada === 'nao' || entrada === 'não') {
+            atualizarSessao(de, 'agendamento_data', { adicionais: [] });
+        } else {
+            const nomesAdicionais = ['Francesinha', 'Pedrarias', 'Nail art', 'Esmaltação', 'Cutilagem'];
+            const nums = entrada.split(',').map(n => parseInt(n.trim()));
+            const adicionaisSelecionados = nums.filter(n => n > 0 && n <= 5).map(n => nomesAdicionais[n - 1]);
+            atualizarSessao(de, 'agendamento_data', { adicionais: adicionaisSelecionados });
+        }
+        return mensagens.agendamento.solicitarData;
+    }
+
+    if (sessao.etapa === 'agendamento_data') {
+        atualizarSessao(de, 'agendamento_horario', { data: texto });
+        return mensagens.agendamento.solicitarHorario;
+    }
+
+    if (sessao.etapa === 'agendamento_horario') {
+        const numHorario = parseInt(entrada);
+        if (numHorario > 0 && numHorario <= horarios.length) {
+            const horarioSelecionado = horarios[numHorario - 1];
+            const dataSelecionada = sessao.dados.data;
+            
+            // Verifica se o horário está disponível
+            if (!horarioDisponivel(dataSelecionada, horarioSelecionado)) {
+                return `❌ Desculpe! O horário ${horarioSelecionado} no dia ${dataSelecionada} já está ocupado.\n\n` +
+                       `Por favor, escolha outro horário:\n\n` + mensagens.agendamento.solicitarHorario;
+            }
+            
+            sessao.dados.horario = horarioSelecionado;
+            
+            const resumo = `
+📋 *RESUMO DO AGENDAMENTO*
+
+👤 Nome: ${sessao.dados.nome}
+📱 Telefone: ${sessao.dados.telefone}
+💅 Serviço: ${sessao.dados.servico.nome}
+💰 Valor: ${sessao.dados.servico.valor}
+✨ Adicionais: ${sessao.dados.adicionais.length > 0 ? sessao.dados.adicionais.join(', ') : 'Nenhum'}
+📅 Data: ${sessao.dados.data}
+🕐 Horário: ${sessao.dados.horario}
+
+Digite *CONFIRMAR* para finalizar ou *CANCELAR* para desistir.`;
+            
+            atualizarSessao(de, 'agendamento_confirmacao', sessao.dados);
+            return resumo;
+        }
+        return 'Horário inválido. Digite o número do horário.';
+    }
+
+    if (sessao.etapa === 'agendamento_confirmacao') {
+        if (entrada === 'confirmar') {
+            const nome = sessao.dados.nome;
+            const telefone = sessao.dados.telefone;
+            
+            // Salva o agendamento no banco de dados
+            const agendamentoSalvo = {
+                servico: sessao.dados.servico,
+                adicionais: sessao.dados.adicionais,
+                data: sessao.dados.data,
+                horario: sessao.dados.horario
+            };
+            salvarAgendamento(de, agendamentoSalvo);
+            
+            atualizarSessao(de, 'menu', { nome, telefone });
+            sessao.cadastrado = true;
+            return mensagens.agendamento.sucesso + '\n\nDigite *MENU* para voltar ao menu principal.';
+        }
+        if (entrada === 'cancelar') {
+            atualizarSessao(de, 'menu');
+            return 'Agendamento cancelado.\n\n' + mensagens.boasVindas;
+        }
+    }
+
+    // FLUXO SERVIÇOS
+    if (sessao.etapa === 'servicos') {
+        const num = parseInt(entrada);
+        if (num > 0 && num <= servicos.length) {
+            const servico = servicos[num - 1];
+            return `
+${servico.nome}
+${servico.descricao}
+💰 ${servico.valor}
+
+Digite *AGENDAR* para agendar este serviço
+Digite *MENU* para voltar ao menu principal`;
+        }
+        if (entrada === 'agendar') {
+            atualizarSessao(de, 'agendamento_nome');
+            return mensagens.agendamento.solicitarNome;
+        }
+    }
+
+    // FLUXO PROMOÇÕES
+    if (sessao.etapa === 'promocoes') {
+        if (entrada === 'agendar') {
+            atualizarSessao(de, 'agendamento_servico', { nome: sessao.dados.nome, telefone: sessao.dados.telefone });
+            return `Ótimo, ${sessao.dados.nome}!\n\n` + mensagens.listarServicos('agendamento');
+        }
+    }
+
+    // ATENDENTE
+    if (sessao.etapa === 'atendente') {
+        atualizarSessao(de, 'menu');
+        return 'Retornando ao menu...\n\n' + mensagens.boasVindas;
+    }
+
+    // FLUXO CANCELAMENTO
+    if (sessao.etapa === 'cancelar_confirmacao') {
+        if (entrada === 'sim' || entrada === 's' || entrada === 'confirmar') {
+            if (cancelarAgendamento(de)) {
+                atualizarSessao(de, 'menu');
+                return mensagens.cancelamento.sucesso;
+            } else {
+                atualizarSessao(de, 'menu');
+                return mensagens.cancelamento.erro;
+            }
+        }
+        if (entrada === 'nao' || entrada === 'não' || entrada === 'n') {
+            atualizarSessao(de, 'menu');
+            return mensagens.cancelamento.mantido;
+        }
+    }
+
+    // FLUXO REAGENDAMENTO
+    if (sessao.etapa === 'reagendar_opcao') {
+        if (entrada === '1') {
+            // Alterar data
+            atualizarSessao(de, 'reagendar_data', sessao.dados);
+            return mensagens.agendamento.solicitarData;
+        }
+        if (entrada === '2') {
+            // Alterar horário
+            atualizarSessao(de, 'reagendar_horario', sessao.dados);
+            return mensagens.agendamento.solicitarHorario;
+        }
+        if (entrada === '3') {
+            // Alterar data e horário
+            atualizarSessao(de, 'reagendar_data_completa', sessao.dados);
+            return mensagens.agendamento.solicitarData;
+        }
+        if (entrada === '0') {
+            // Cancelar reagendamento
+            atualizarSessao(de, 'menu');
+            return 'Reagendamento cancelado.\n\nDigite *MENU* para ver as opções.';
+        }
+    }
+
+    if (sessao.etapa === 'reagendar_data') {
+        const agendamento = buscarAgendamento(de);
+        if (agendamento) {
+            agendamento.data = texto;
+            salvarAgendamento(de, agendamento);
+            atualizarSessao(de, 'menu');
+            return mensagens.reagendamento.sucesso(agendamento);
+        }
+    }
+
+    if (sessao.etapa === 'reagendar_horario') {
+        const numHorario = parseInt(entrada);
+        if (numHorario > 0 && numHorario <= horarios.length) {
+            const agendamento = buscarAgendamento(de);
+            if (agendamento) {
+                agendamento.horario = horarios[numHorario - 1];
+                salvarAgendamento(de, agendamento);
+                atualizarSessao(de, 'menu');
+                return mensagens.reagendamento.sucesso(agendamento);
+            }
+        }
+        return 'Horário inválido. Digite o número do horário.';
+    }
+
+    if (sessao.etapa === 'reagendar_data_completa') {
+        atualizarSessao(de, 'reagendar_horario_completo', { novaData: texto });
+        return mensagens.agendamento.solicitarHorario;
+    }
+
+    if (sessao.etapa === 'reagendar_horario_completo') {
+        const numHorario = parseInt(entrada);
+        if (numHorario > 0 && numHorario <= horarios.length) {
+            const agendamento = buscarAgendamento(de);
+            if (agendamento) {
+                agendamento.data = sessao.dados.novaData;
+                agendamento.horario = horarios[numHorario - 1];
+                salvarAgendamento(de, agendamento);
+                atualizarSessao(de, 'menu');
+                return mensagens.reagendamento.sucesso(agendamento);
+            }
+        }
+        return 'Horário inválido. Digite o número do horário.';
+    }
+
+    return 'Opção não reconhecida. Digite *MENU* para ver as opções.';
+}

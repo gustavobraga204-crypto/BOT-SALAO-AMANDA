@@ -1,0 +1,17 @@
+{
+  "name": "bot-salao",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "node iniciar.js",
+    "dev": "node bot.js",
+    "painel": "node iniciar.js"
+  },
+  "dependencies": {
+    "@whiskeysockets/baileys": "^6.7.8",
+    "express": "^4.22.1",
+    "pino": "^9.0.0",
+    "qrcode-terminal": "^0.12.0",
+    "socket.io": "^4.8.3"
+  }
+}

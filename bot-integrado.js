@@ -11,6 +11,9 @@ carregarDatabase();
 // Variável global para armazenar a função de notificação
 let funcaoNotificar = null;
 
+// Variável global para armazenar o QR Code atual
+export let qrCodeAtual = null;
+
 // Função para registrar a função de notificação
 export function registrarNotificacao(funcao) {
     funcaoNotificar = funcao;
@@ -49,7 +52,8 @@ async function conectar() {
             const { connection, lastDisconnect, qr } = update;
             
             if (qr) {
-                console.log('\n📱 Escaneie o QR Code:\n');
+                qrCodeAtual = qr;
+                console.log('\n📱 QR Code gerado! Acesse: http://localhost:3000/qrcode\n');
                 qrcode.generate(qr, { small: true });
                 console.log('\n⏳ Aguardando...\n');
             }
@@ -67,6 +71,7 @@ async function conectar() {
             }
             
             if (connection === 'open') {
+                qrCodeAtual = null;
                 console.log('✅ Bot online!\n');
             }
         });

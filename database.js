@@ -1,6 +1,16 @@
 import { readFileSync, writeFileSync, existsSync } from 'fs';
+import { 
+    inicializarBancoPG, 
+    salvarClientePG, 
+    salvarAgendamentoPG, 
+    obterAgendamentosPG,
+    cancelarAgendamentoPG,
+    clienteExistePG,
+    horarioDisponivelPG
+} from './database-pg.js';
 
 const DB_FILE = './clientes.json';
+const usarPostgreSQL = !!process.env.DATABASE_URL;
 
 // Variável para armazenar a função de notificação do servidor
 let funcaoNotificarServidor = null;
@@ -13,8 +23,14 @@ export function registrarNotificacaoServidor(funcao) {
 // Estrutura: { telefone: { nome, telefone, dataRegistro, ultimoAcesso } }
 let clientes = {};
 
-// Carrega dados do arquivo
-export function carregarDatabase() {
+// Carrega dados do arquivo ou inicializa PostgreSQL
+export async function carregarDatabase() {
+    if (usarPostgreSQL) {
+        console.log('🐘 Usando PostgreSQL');
+        await inicializarBancoPG();
+        return;
+    }
+    
     try {
         if (existsSync(DB_FILE)) {
             const dados = readFileSync(DB_FILE, 'utf-8');
@@ -94,8 +110,21 @@ export function totalClientes() {
 }
 
 // Salva agendamento do cliente
-export function salvarAgendamento(telefone, agendamento) {
+export async function salvarAgendamento(telefone, agendamento) {
     const numeroLimpo = limparTelefone(telefone);
+    
+    if (usarPostgreSQL) {
+        const sucesso = await salvarAgendamentoPG(numeroLimpo, agendamento);
+        if (sucesso) {
+            console.log(`📅 Agendamento salvo no PostgreSQL`);
+            if (funcaoNotificarServidor) {
+                funcaoNotificarServidor();
+                console.log('🔄 Painel atualizado');
+            }
+        }
+        return sucesso;
+    }
+    
     if (clientes[numeroLimpo]) {
         clientes[numeroLimpo].agendamento = {
             ...agendamento,

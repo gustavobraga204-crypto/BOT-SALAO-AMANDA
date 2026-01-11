@@ -247,29 +247,39 @@ function renderizarCalendario() {
     for (let dia = 1; dia <= ultimoDia.getDate(); dia++) {
         const data = new Date(ano, mes, dia);
         data.setHours(0, 0, 0, 0);
-        const dataStr = formatarDataParaBD(data);
-        const agendamentosDia = todosAgendamentos.filter(ag => ag.agendamento.data === dataStr);
+        const dataFormatada = formatarDataParaBD(data);
+        const agendamentosDia = todosAgendamentos.filter(ag => ag.agendamento.data === dataFormatada);
         
         const isHoje = data.getTime() === hoje.getTime();
+        const isPast = data < hoje;
         
-        html += `
-            <div class="calendar-day ${isHoje ? 'hoje' : ''}" onclick="abrirDiaDetalhado('${dataStr}')">
-                <div class="day-number">${dia}</div>
-                <div class="day-agendamentos">
-                    ${agendamentosDia.slice(0, 3).map(ag => `
-                        <div class="agendamento-item" onclick="event.stopPropagation(); abrirModal(${JSON.stringify(ag).replace(/"/g, '&quot;')})">
-                            <div class="agendamento-horario">${ag.agendamento.horario}</div>
-                            <div class="agendamento-cliente">${ag.nome}</div>
-                        </div>
-                    `).join('')}
-                </div>
-                ${agendamentosDia.length > 0 ? `
-                    <div class="day-count has-agendamentos">
-                        ${agendamentosDia.length} agendamento${agendamentosDia.length > 1 ? 's' : ''}
-                    </div>
-                ` : '<div class="day-count">Sem agendamentos</div>'}
-            </div>
-        `;
+        let diaHTML = '';
+        
+        if (isPast) {
+            // Dia passado - não clicável
+            diaHTML += `<div class="calendar-day past ${isHoje ? 'hoje' : ''}">`;
+            diaHTML += `<div class="day-number">${dia}</div>`;
+        } else if (agendamentosDia.length > 0) {
+            // Dia com agendamentos - clique para ver ou adicionar mais
+            diaHTML += `<div class="calendar-day occupied ${isHoje ? 'hoje' : ''}" onclick="abrirDiaParaAgendar('${dataFormatada}')">`;
+            diaHTML += `<div class="day-number">${dia}</div>`;
+            diaHTML += `<div class="day-content">`;
+            agendamentosDia.forEach(ag => {
+                diaHTML += `<div class="appointment-item">`;
+                diaHTML += `<span class="time">${ag.agendamento.horario}</span> `;
+                diaHTML += `<span class="name">${ag.nome}</span>`;
+                diaHTML += `</div>`;
+            });
+            diaHTML += `</div>`;
+        } else {
+            // Dia livre - clique para agendar
+            diaHTML += `<div class="calendar-day available ${isHoje ? 'hoje' : ''}" onclick="abrirModalAgendamentoComData('${dataFormatada}')">`;
+            diaHTML += `<div class="day-number">${dia}</div>`;
+            diaHTML += `<div class="day-label">✨ Clique para agendar</div>`;
+        }
+        
+        diaHTML += `</div>`;
+        html += diaHTML;
     }
     
     // Dias do próximo mês para completar a grade

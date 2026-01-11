@@ -1,5 +1,47 @@
 /* Ajustes específicos para mobile */
 
+/* Correção para modais Bootstrap */
+.modal {
+    z-index: 1060 !important;
+}
+
+.modal-backdrop {
+    z-index: 1050 !important;
+}
+
+.modal-dialog {
+    margin: 10px !important;
+    max-width: calc(100% - 20px) !important;
+    position: relative !important;
+    z-index: 1061 !important;
+}
+
+.modal.show {
+    display: flex !important;
+    align-items: center !important;
+}
+
+.modal-content {
+    max-height: calc(100vh - 20px) !important;
+    overflow-y: auto !important;
+    position: relative !important;
+    z-index: 1062 !important;
+}
+
+.modal-body {
+    max-height: calc(100vh - 120px) !important;
+    overflow-y: auto !important;
+}
+
+/* Garantir que inputs funcionem no modal */
+.modal input,
+.modal select,
+.modal textarea,
+.modal button {
+    position: relative !important;
+    z-index: 1063 !important;
+}
+
 /* Layout geral */
 body {
     font-size: 14px;

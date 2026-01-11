@@ -393,8 +393,12 @@ function abrirModal(agendamento) {
         ` : ''}
     `;
     
-    const modalElement = new bootstrap.Modal(document.getElementById('modal'));
-    modalElement.show();
+    const modalEl = document.getElementById('modal');
+    let modalInstance = bootstrap.Modal.getInstance(modalEl);
+    if (!modalInstance) {
+        modalInstance = new bootstrap.Modal(modalEl);
+    }
+    modalInstance.show();
 }
 
 // Modal com opção de cancelamento
@@ -440,8 +444,12 @@ function abrirModalCancelamento(agendamento) {
         </div>
     `;
     
-    const modalElement = new bootstrap.Modal(document.getElementById('modal'));
-    modalElement.show();
+    const modalEl = document.getElementById('modal');
+    let modalInstance = bootstrap.Modal.getInstance(modalEl);
+    if (!modalInstance) {
+        modalInstance = new bootstrap.Modal(modalEl);
+    }
+    modalInstance.show();
 }
 
 // Função para cancelar agendamento
@@ -553,8 +561,13 @@ function abrirModalAgendamento() {
     const hoje = new Date().toISOString().split('T')[0];
     document.getElementById('dataAgendamento').min = hoje;
     
-    const modalElement = new bootstrap.Modal(document.getElementById('modalAgendamento'));
-    modalElement.show();
+    // Abre o modal Bootstrap
+    const modalEl = document.getElementById('modalAgendamento');
+    let modalInstance = bootstrap.Modal.getInstance(modalEl);
+    if (!modalInstance) {
+        modalInstance = new bootstrap.Modal(modalEl);
+    }
+    modalInstance.show();
 }
 
 // Atualiza horários disponíveis baseado na data selecionada

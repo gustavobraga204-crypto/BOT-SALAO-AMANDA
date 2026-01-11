@@ -1,33 +1,87 @@
 export const servicos = [
     {
-        nome: 'Alongamento Fibra',
-        descricao: 'Alongamento em fibra de vidro, natural e resistente',
-        valor: 'R$ 150,00',
-        duracao: '2h'
-    },
-    {
-        nome: 'Alongamento Gel',
-        descricao: 'Alongamento em gel, acabamento perfeito',
-        valor: 'R$ 180,00',
-        duracao: '2h30'
-    },
-    {
-        nome: 'Manutenção',
-        descricao: 'Manutenção de alongamento (15-20 dias)',
-        valor: 'R$ 80,00',
+        nome: 'Baby Boomer - Decoração',
+        descricao: 'Técnica de decoração sofisticada com degradê',
+        valor: 'a partir de R$ 50,00',
         duracao: '1h30'
     },
     {
-        nome: 'Esmaltação em Gel',
-        descricao: 'Esmaltação com gel, longa duração',
-        valor: 'R$ 60,00',
+        nome: 'Banho de Gel',
+        descricao: 'Fortalecimento e brilho intenso para as unhas',
+        valor: 'a partir de R$ 130,00',
+        duracao: '2h'
+    },
+    {
+        nome: 'Blindagem',
+        descricao: 'Proteção e fortalecimento das unhas',
+        valor: 'a partir de R$ 70,00',
+        duracao: '1h30'
+    },
+    {
+        nome: 'Esmaltação em Gel (Mão)',
+        descricao: 'Esmaltação com gel de longa duração para as mãos',
+        valor: 'a partir de R$ 60,00',
+        duracao: '1h30'
+    },
+    {
+        nome: 'Esmaltação em Gel (Pé)',
+        descricao: 'Esmaltação com gel de longa duração para os pés',
+        valor: 'a partir de R$ 70,00',
+        duracao: '1h30'
+    },
+    {
+        nome: 'Fibra de Vidro',
+        descricao: 'Alongamento em fibra de vidro, natural e resistente',
+        valor: 'a partir de R$ 180,00',
+        duracao: '2h30'
+    },
+    {
+        nome: 'Manicure',
+        descricao: 'Manicure completa com cutilagem e esmaltação',
+        valor: 'a partir de R$ 30,00',
+        duracao: '40min'
+    },
+    {
+        nome: 'Manicure e Pedicure',
+        descricao: 'Combo completo de manicure e pedicure',
+        valor: 'a partir de R$ 70,00',
+        duracao: '1h30'
+    },
+    {
+        nome: 'Manutenção Fibra (15 a 20 dias)',
+        descricao: 'Manutenção de fibra de vidro até 20 dias',
+        valor: 'a partir de R$ 130,00',
+        duracao: '1h30'
+    },
+    {
+        nome: 'Manutenção Fibra (21 a 30 dias)',
+        descricao: 'Manutenção de fibra de vidro entre 21 e 30 dias',
+        valor: 'a partir de R$ 160,00',
+        duracao: '1h30'
+    },
+    {
+        nome: 'Nail Art Mão Toda',
+        descricao: 'Decoração artística completa em todas as unhas',
+        valor: 'a partir de R$ 130,00',
         duracao: '1h'
     },
     {
-        nome: 'Manicure Completa',
-        descricao: 'Manicure com cutilagem e esmaltação',
-        valor: 'R$ 40,00',
-        duracao: '45min'
+        nome: 'Pedicure',
+        descricao: 'Pedicure completa com cutilagem e esmaltação',
+        valor: 'a partir de R$ 40,00',
+        duracao: '1h'
+    },
+    {
+        nome: 'Remoção',
+        descricao: 'Remoção de esmaltação em gel ou fibra',
+        valor: 'a partir de R$ 40,00',
+        duracao: '25min'
+    },
+    {
+        nome: 'Reparo',
+        descricao: 'Reparo de unhas quebradas ou danificadas',
+        valor: 'a partir de R$ 15,00',
+        duracao: '15min'
     }
 ];
 

@@ -131,10 +131,11 @@ export async function fluxos(de, texto) {
         if (numHorario > 0 && numHorario <= horarios.length) {
             const horarioSelecionado = horarios[numHorario - 1];
             const dataSelecionada = sessao.dados.data;
+            const duracaoServico = sessao.dados.servico.duracao;
             
-            // Verifica se o horário está disponível
-            if (!horarioDisponivel(dataSelecionada, horarioSelecionado)) {
-                return `❌ Desculpe! O horário ${horarioSelecionado} no dia ${dataSelecionada} já está ocupado.\n\n` +
+            // Verifica se o horário está disponível considerando a duração
+            if (!await horarioDisponivel(dataSelecionada, horarioSelecionado, duracaoServico)) {
+                return `❌ Desculpe! O horário ${horarioSelecionado} no dia ${dataSelecionada} não está disponível para um serviço de ${duracaoServico}.\n\n` +
                        `Por favor, escolha outro horário:\n\n` + mensagens.agendamento.solicitarHorario;
             }
             

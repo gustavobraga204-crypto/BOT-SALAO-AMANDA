@@ -115,3 +115,55 @@ export const horarios = [
     '17:00',
     '18:30'
 ];
+
+// Função para converter duração em minutos
+export function duracaoEmMinutos(duracao) {
+    // Exemplos: '1h30', '2h', '40min', '25min', '15min'
+    const match = duracao.match(/(\d+)h(?:(\d+))?|(\d+)min/);
+    if (!match) return 90; // Default 1h30
+    
+    if (match[3]) {
+        // Apenas minutos (ex: '40min')
+        return parseInt(match[3]);
+    }
+    
+    const horas = parseInt(match[1]) || 0;
+    const minutos = parseInt(match[2]) || 0;
+    return (horas * 60) + minutos;
+}
+
+// Função para adicionar minutos a um horário
+export function adicionarMinutos(horario, minutos) {
+    const [h, m] = horario.split(':').map(Number);
+    const data = new Date(2000, 0, 1, h, m);
+    data.setMinutes(data.getMinutes() + minutos);
+    return `${String(data.getHours()).padStart(2, '0')}:${String(data.getMinutes()).padStart(2, '0')}`;
+}
+
+// Função para calcular todos os horários bloqueados por um serviço
+export function calcularHorariosBloqueados(horarioInicio, duracao) {
+    const durMinutos = duracaoEmMinutos(duracao);
+    const bloqueados = [horarioInicio];
+    
+    // Cada slot tem 1h30 (90 minutos)
+    const intervaloSlot = 90;
+    let minutosRestantes = durMinutos - intervaloSlot;
+    let proximoHorario = horarioInicio;
+    
+    // Bloqueia os próximos slots necessários
+    while (minutosRestantes > 0) {
+        proximoHorario = adicionarMinutos(proximoHorario, intervaloSlot);
+        if (horarios.includes(proximoHorario)) {
+            bloqueados.push(proximoHorario);
+        }
+        minutosRestantes -= intervaloSlot;
+    }
+    
+    return bloqueados;
+}
+
+// Função para verificar se um horário e sua duração estão livres
+export function horarioEDuracaoDisponiveis(horarioInicio, duracao, horariosOcupados) {
+    const horariosBloqueados = calcularHorariosBloqueados(horarioInicio, duracao);
+    return !horariosBloqueados.some(h => horariosOcupados.includes(h));
+}

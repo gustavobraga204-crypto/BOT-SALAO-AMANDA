@@ -87,6 +87,47 @@ function mostrarPainel() {
 }
 
 // === LÓGICA DO PAINEL ===
+
+// Funções auxiliares para cálculo de duração
+function duracaoEmMinutos(duracao) {
+    const match = duracao.match(/(\d+)h(?:(\d+))?|(\d+)min/);
+    if (!match) return 90;
+    
+    if (match[3]) {
+        return parseInt(match[3]);
+    }
+    
+    const horas = parseInt(match[1]) || 0;
+    const minutos = parseInt(match[2]) || 0;
+    return (horas * 60) + minutos;
+}
+
+function adicionarMinutos(horario, minutos) {
+    const [h, m] = horario.split(':').map(Number);
+    const data = new Date(2000, 0, 1, h, m);
+    data.setMinutes(data.getMinutes() + minutos);
+    return `${String(data.getHours()).padStart(2, '0')}:${String(data.getMinutes()).padStart(2, '0')}`;
+}
+
+function calcularHorariosBloqueados(horarioInicio, duracao) {
+    const durMinutos = duracaoEmMinutos(duracao);
+    const bloqueados = [horarioInicio];
+    
+    const intervaloSlot = 90;
+    let minutosRestantes = durMinutos - intervaloSlot;
+    let proximoHorario = horarioInicio;
+    
+    while (minutosRestantes > 0) {
+        proximoHorario = adicionarMinutos(proximoHorario, intervaloSlot);
+        if (HORARIOS.includes(proximoHorario)) {
+            bloqueados.push(proximoHorario);
+        }
+        minutosRestantes -= intervaloSlot;
+    }
+    
+    return bloqueados;
+}
+
 function inicializarPainel() {
     console.log('🎯 Inicializando painel...');
     
@@ -146,36 +187,20 @@ const HORARIOS = [
 
 // Serviços disponíveis
 const SERVICOS = [
-    {
-        nome: 'Alongamento Fibra',
-        descricao: 'Alongamento em fibra de vidro, natural e resistente',
-        valor: 'R$ 150,00',
-        duracao: '2h'
-    },
-    {
-        nome: 'Alongamento Gel',
-        descricao: 'Alongamento em gel, acabamento perfeito',
-        valor: 'R$ 180,00',
-        duracao: '2h30'
-    },
-    {
-        nome: 'Manutenção',
-        descricao: 'Manutenção de alongamento (15-20 dias)',
-        valor: 'R$ 80,00',
-        duracao: '1h30'
-    },
-    {
-        nome: 'Esmaltação em Gel',
-        descricao: 'Esmaltação com gel, longa duração',
-        valor: 'R$ 60,00',
-        duracao: '1h'
-    },
-    {
-        nome: 'Manicure Completa',
-        descricao: 'Manicure com cutilagem e esmaltação',
-        valor: 'R$ 40,00',
-        duracao: '45min'
-    }
+    { nome: 'Baby Boomer - Decoração', descricao: 'Técnica de decoração sofisticada com degradê', valor: 'a partir de R$ 50,00', duracao: '1h30' },
+    { nome: 'Banho de Gel', descricao: 'Fortalecimento e brilho intenso para as unhas', valor: 'a partir de R$ 130,00', duracao: '2h' },
+    { nome: 'Blindagem', descricao: 'Proteção e fortalecimento das unhas', valor: 'a partir de R$ 70,00', duracao: '1h30' },
+    { nome: 'Esmaltação em Gel (Mão)', descricao: 'Esmaltação com gel de longa duração para as mãos', valor: 'a partir de R$ 60,00', duracao: '1h30' },
+    { nome: 'Esmaltação em Gel (Pé)', descricao: 'Esmaltação com gel de longa duração para os pés', valor: 'a partir de R$ 70,00', duracao: '1h30' },
+    { nome: 'Fibra de Vidro', descricao: 'Alongamento em fibra de vidro, natural e resistente', valor: 'a partir de R$ 180,00', duracao: '2h30' },
+    { nome: 'Manicure', descricao: 'Manicure completa com cutilagem e esmaltação', valor: 'a partir de R$ 30,00', duracao: '40min' },
+    { nome: 'Manicure e Pedicure', descricao: 'Combo completo de manicure e pedicure', valor: 'a partir de R$ 70,00', duracao: '1h30' },
+    { nome: 'Manutenção Fibra (15 a 20 dias)', descricao: 'Manutenção de fibra de vidro até 20 dias', valor: 'a partir de R$ 130,00', duracao: '1h30' },
+    { nome: 'Manutenção Fibra (21 a 30 dias)', descricao: 'Manutenção de fibra de vidro entre 21 e 30 dias', valor: 'a partir de R$ 160,00', duracao: '1h30' },
+    { nome: 'Nail Art Mão Toda', descricao: 'Decoração artística completa em todas as unhas', valor: 'a partir de R$ 130,00', duracao: '1h' },
+    { nome: 'Pedicure', descricao: 'Pedicure completa com cutilagem e esmaltação', valor: 'a partir de R$ 40,00', duracao: '1h' },
+    { nome: 'Remoção', descricao: 'Remoção de esmaltação em gel ou fibra', valor: 'a partir de R$ 40,00', duracao: '25min' },
+    { nome: 'Reparo', descricao: 'Reparo de unhas quebradas ou danificadas', valor: 'a partir de R$ 15,00', duracao: '15min' }
 ];
 
 const ADICIONAIS = [
@@ -539,7 +564,15 @@ function abrirModalAgendamentoComData(dataStr) {
 // Abre opções para dia com agendamentos (ver ou adicionar novo)
 function abrirDiaParaAgendar(dataStr) {
     const agendamentosDia = todosAgendamentos.filter(ag => ag.agendamento.data === dataStr);
-    const horariosOcupados = agendamentosDia.map(ag => ag.agendamento.horario);
+    
+    // Calcula todos os horários bloqueados (incluindo slots de duração)
+    const horariosOcupados = [];
+    agendamentosDia.forEach(ag => {
+        const duracao = ag.agendamento.servico?.duracao || '1h30';
+        const bloqueados = calcularHorariosBloqueados(ag.agendamento.horario, duracao);
+        horariosOcupados.push(...bloqueados);
+    });
+    
     const horariosDisponiveis = HORARIOS.filter(h => !horariosOcupados.includes(h));
     
     if (horariosDisponiveis.length > 0) {
@@ -613,6 +646,15 @@ function abrirModalAgendamento() {
     const hoje = new Date().toISOString().split('T')[0];
     document.getElementById('dataAgendamento').min = hoje;
     
+    // Listener para atualizar horários quando serviço mudar
+    const servicoSelect = document.getElementById('servicoSelect');
+    servicoSelect.addEventListener('change', () => {
+        const dataInput = document.getElementById('dataAgendamento');
+        if (dataInput.value) {
+            atualizarHorariosDisponiveis(dataInput.value);
+        }
+    });
+    
     // Abre o modal Bootstrap
     const modalEl = document.getElementById('modalAgendamento');
     let modalInstance = bootstrap.Modal.getInstance(modalEl);
@@ -655,12 +697,25 @@ async function atualizarHorariosDisponiveis(dataSelecionada = null) {
     const [ano, mes, dia] = dataSelecionada.split('-');
     const dataFormatada = `${dia}/${mes}/${ano}`;
     
-    // Busca agendamentos do dia
+    // Busca agendamentos do dia e calcula horários bloqueados
     const agendamentosDia = todosAgendamentos.filter(ag => ag.agendamento.data === dataFormatada);
-    const horariosOcupados = agendamentosDia.map(ag => ag.agendamento.horario);
+    const horariosOcupados = [];
+    agendamentosDia.forEach(ag => {
+        const duracao = ag.agendamento.servico?.duracao || '1h30';
+        const bloqueados = calcularHorariosBloqueados(ag.agendamento.horario, duracao);
+        horariosOcupados.push(...bloqueados);
+    });
     
-    // Filtra horários disponíveis
-    const horariosDisponiveis = HORARIOS.filter(h => !horariosOcupados.includes(h));
+    // Obtém o serviço selecionado para verificar disponibilidade
+    const servicoSelect = document.getElementById('servicoSelect');
+    const servicoSelecionado = servicoSelect?.value ? SERVICOS.find(s => s.nome === servicoSelect.value) : null;
+    const duracaoServico = servicoSelecionado?.duracao || '1h30';
+    
+    // Filtra horários disponíveis considerando a duração do serviço
+    const horariosDisponiveis = HORARIOS.filter(horario => {
+        const horariosBloqueados = calcularHorariosBloqueados(horario, duracaoServico);
+        return !horariosBloqueados.some(h => horariosOcupados.includes(h));
+    });
     
     // Atualiza o select
     horarioSelect.innerHTML = horariosDisponiveis.length > 0 

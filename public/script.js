@@ -96,6 +96,9 @@ function inicializarPainel() {
     // Carrega dados iniciais
     carregarAgendamentos();
     
+    // Inicializa navegação de meses
+    inicializarNavegacaoMeses();
+    
     // Inicializa o formulário de agendamento
     setTimeout(() => {
         inicializarFormularioAgendamento();
@@ -548,13 +551,37 @@ function abrirDiaParaAgendar(dataStr) {
     }
 }
 
-// Navegação de meses
-document.getElementById('prevMonth').addEventListener('click', () => {
+// Função para inicializar navegação de meses
+function inicializarNavegacaoMeses() {
+    const btnPrev = document.getElementById('prevMonth');
+    const btnNext = document.getElementById('nextMonth');
+    
+    if (btnPrev) {
+        btnPrev.addEventListener('click', () => {
+            console.log('⬅️ Mês anterior');
+            mesAtual.setMonth(mesAtual.getMonth() - 1);
+            renderizarCalendario();
+        });
+    }
+    
+    if (btnNext) {
+        btnNext.addEventListener('click', () => {
+            console.log('➡️ Próximo mês');
+            mesAtual.setMonth(mesAtual.getMonth() + 1);
+            renderizarCalendario();
+        });
+    }
+    
+    console.log('✅ Navegação de meses inicializada');
+}
+
+// Navegação de meses - CÓDIGO ANTIGO (será removido)
+document.getElementById('prevMonth')?.addEventListener('click', () => {
     mesAtual.setMonth(mesAtual.getMonth() - 1);
     renderizarCalendario();
 });
 
-document.getElementById('nextMonth').addEventListener('click', () => {
+document.getElementById('nextMonth')?.addEventListener('click', () => {
     mesAtual.setMonth(mesAtual.getMonth() + 1);
     renderizarCalendario();
 });

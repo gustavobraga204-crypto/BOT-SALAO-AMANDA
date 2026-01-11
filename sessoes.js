@@ -33,3 +33,9 @@ export function atualizarSessao(de, etapa, dados = {}) {
 export function limparSessao(de) {
     sessoes.delete(de);
 }
+
+export function limparTodasSessoes() {
+    const quantidade = sessoes.size;
+    sessoes.clear();
+    console.log(`🧹 ${quantidade} sessão(ões) limpa(s)`);
+}

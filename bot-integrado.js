@@ -4,6 +4,10 @@ import qrcode from 'qrcode-terminal';
 import { fluxos } from './fluxos.js';
 import { carregarDatabase } from './database.js';
 import { notificarMudanca } from './servidor.js';
+import { limparTodasSessoes } from './sessoes.js';
+
+// Limpa todas as sessões ao reiniciar o bot
+limparTodasSessoes();
 
 // Carrega base de dados ao iniciar (aguarda se for async)
 await carregarDatabase();

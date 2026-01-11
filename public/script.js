@@ -6,6 +6,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.log('🔄 Página carregada, verificando autenticação...');
     console.log('🔑 Token armazenado:', tokenAuth ? 'Sim' : 'Não');
     
+    // Aguarda um pouco para garantir que o DOM está completamente pronto
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
     if (tokenAuth) {
         try {
             console.log('📡 Verificando token com servidor...');
@@ -17,7 +20,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             
             if (response.ok) {
                 console.log('✅ Token válido, mostrando painel...');
-                mostrarPainel();
+                await mostrarPainel();
                 return;
             } else {
                 console.log('❌ Token inválido, removendo...');
@@ -69,7 +72,10 @@ document.getElementById('loginForm')?.addEventListener('submit', async (e) => {
             console.log('✅ Login bem-sucedido!');
             tokenAuth = data.token;
             localStorage.setItem('tokenAuth', tokenAuth);
-            mostrarPainel();
+            
+            // Aguarda um pouco antes de mostrar o painel
+            await new Promise(resolve => setTimeout(resolve, 100));
+            await mostrarPainel();
         } else {
             console.log('❌ Login falhou:', data.erro);
             loginErro.textContent = '❌ ' + (data.erro || 'Erro ao fazer login');
@@ -97,8 +103,12 @@ document.getElementById('btnSair')?.addEventListener('click', () => {
 
 function mostrarLogin() {
     console.log('🔐 Exibindo tela de login');
-    const loginScreen = document.getElementById('loginScreen');
-    const painelPrincipal = document.getElementById('painelPrincipal');
+    console.log('🔍 Elementos encontrados:', { 
+        loginScreen: !!loginScreen, 
+        painelPrincipal: !!painelPrincipal,
+        loginScreenDisplay: loginScreen?.style.display,
+        painelPrincipalDisplay: painelPrincipal?.style.display
+    });
     
     if (loginScreen && painelPrincipal) {
         loginScreen.style.display = 'flex';
@@ -109,14 +119,28 @@ function mostrarLogin() {
     }
 }
 
-function mostrarPainel() {
+async function mostrarPainel() {
     console.log('📊 Exibindo painel');
     const loginScreen = document.getElementById('loginScreen');
     const painelPrincipal = document.getElementById('painelPrincipal');
     
+    console.log('🔍 Elementos encontrados:', { 
+        loginScreen: !!loginScreen, 
+        painelPrincipal: !!painelPrincipal,
+        loginScreenDisplay: loginScreen?.style.display,
+        painelPrincipalDisplay: painelPrincipal?.style.display
+    });
+    
     if (loginScreen && painelPrincipal) {
+        console.log('🎯 Ocultando login e mostrando painel...');
         loginScreen.style.display = 'none';
         painelPrincipal.style.display = 'block';
+        
+        console.log('📐 Display após mudança:', {
+            loginScreen: loginScreen.style.display,
+            painelPrincipal: painelPrincipal.style.display
+        });
+        
         console.log('✅ Painel exibido, inicializando...');
         
         try {
@@ -124,6 +148,11 @@ function mostrarPainel() {
             console.log('✅ Painel inicializado com sucesso');
         } catch (erro) {
             console.error('❌ Erro ao inicializar painel:', erro);
+            alert('Erro ao inicializar painel. Verifique o console para mais detalhes.');
+        }
+    } else {
+        console.error('❌ Elementos não encontrados:', { loginScreen: !!loginScreen, painelPrincipal: !!painelPrincipal });
+        alert('Erro: Elementos da página não encontrados. Recarregue a página.'
         }
     } else {
         console.error('❌ Elementos não encontrados:', { loginScreen: !!loginScreen, painelPrincipal: !!painelPrincipal });

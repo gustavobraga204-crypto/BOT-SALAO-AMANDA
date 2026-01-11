@@ -396,9 +396,16 @@ function abrirModal(agendamento) {
     const modalEl = document.getElementById('modal');
     let modalInstance = bootstrap.Modal.getInstance(modalEl);
     if (!modalInstance) {
-        modalInstance = new bootstrap.Modal(modalEl);
+        modalInstance = new bootstrap.Modal(modalEl, {
+            backdrop: true,
+            keyboard: true,
+            focus: true
+        });
     }
-    modalInstance.show();
+    
+    setTimeout(() => {
+        modalInstance.show();
+    }, 100);
 }
 
 // Modal com opção de cancelamento
@@ -447,9 +454,16 @@ function abrirModalCancelamento(agendamento) {
     const modalEl = document.getElementById('modal');
     let modalInstance = bootstrap.Modal.getInstance(modalEl);
     if (!modalInstance) {
-        modalInstance = new bootstrap.Modal(modalEl);
+        modalInstance = new bootstrap.Modal(modalEl, {
+            backdrop: true,
+            keyboard: true,
+            focus: true
+        });
     }
-    modalInstance.show();
+    
+    setTimeout(() => {
+        modalInstance.show();
+    }, 100);
 }
 
 // Função para cancelar agendamento
@@ -565,9 +579,25 @@ function abrirModalAgendamento() {
     const modalEl = document.getElementById('modalAgendamento');
     let modalInstance = bootstrap.Modal.getInstance(modalEl);
     if (!modalInstance) {
-        modalInstance = new bootstrap.Modal(modalEl);
+        modalInstance = new bootstrap.Modal(modalEl, {
+            backdrop: true,
+            keyboard: true,
+            focus: true
+        });
     }
-    modalInstance.show();
+    
+    // Garantir que o modal apareça corretamente
+    setTimeout(() => {
+        modalInstance.show();
+        
+        // Forçar foco no modal após abrir
+        setTimeout(() => {
+            const firstInput = modalEl.querySelector('input:not([type="checkbox"]), select');
+            if (firstInput) {
+                firstInput.focus();
+            }
+        }, 300);
+    }, 100);
 }
 
 // Atualiza horários disponíveis baseado na data selecionada

@@ -1,31 +1,29 @@
 /* Ajustes específicos para mobile */
 
-/* Correção para modais Bootstrap */
-.modal {
-    z-index: 1060 !important;
+/* Correção CRÍTICA para modais Bootstrap */
+.modal-backdrop {
+    z-index: 1040 !important;
 }
 
-.modal-backdrop {
-    z-index: 1050 !important;
+.modal {
+    z-index: 9999 !important;
 }
 
 .modal-dialog {
-    margin: 10px !important;
+    margin: 10px auto !important;
     max-width: calc(100% - 20px) !important;
-    position: relative !important;
-    z-index: 1061 !important;
+    z-index: 10000 !important;
 }
 
-.modal.show {
-    display: flex !important;
-    align-items: center !important;
+.modal.show .modal-dialog {
+    transform: none !important;
 }
 
 .modal-content {
     max-height: calc(100vh - 20px) !important;
     overflow-y: auto !important;
-    position: relative !important;
-    z-index: 1062 !important;
+    background: white !important;
+    border-radius: 8px !important;
 }
 
 .modal-body {
@@ -33,13 +31,26 @@
     overflow-y: auto !important;
 }
 
-/* Garantir que inputs funcionem no modal */
+/* Forçar pointer-events nos elementos do modal */
+.modal-dialog,
+.modal-content,
+.modal-header,
+.modal-body,
+.modal-footer {
+    pointer-events: auto !important;
+}
+
+.modal-backdrop {
+    pointer-events: auto !important;
+}
+
+/* Garantir que inputs funcionem */
 .modal input,
 .modal select,
 .modal textarea,
 .modal button {
-    position: relative !important;
-    z-index: 1063 !important;
+    pointer-events: auto !important;
+    touch-action: manipulation !important;
 }
 
 /* Layout geral */

@@ -223,6 +223,15 @@ body {
     min-height: 100vh;
     padding: 0;
     margin: 0;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+input, textarea, button, select {
+    -webkit-user-select: text;
+    user-select: text;
 }
 
 .container {
@@ -954,76 +963,55 @@ h1 {
 /* Mobile - Telas pequenas */
 @media (max-width: 768px) {
     body {
+        padding: 5px;
+    }
+    
+    .container {
         padding: 10px;
     }
     
-    header {
-        padding: 20px 15px;
-        margin-bottom: 20px;
-    }
-    
-    h1 {
-        font-size: 1.6em;
-    }
-    
-    .subtitle {
-        font-size: 0.95em;
-    }
-    
-    .stats {
-        flex-direction: column;
-        gap: 10px;
-        width: 100%;
-    }
-    
-    .stat-card {
-        width: 100%;
-        flex-direction: row;
-        justify-content: space-between;
-        padding: 15px 20px;
-    }
-    
-    .stat-number {
-        font-size: 1.5em;
-    }
-    
-    .stat-label {
+    /* Botão Sair */
+    .btn-sair {
+        top: 10px;
+        right: 10px;
+        padding: 8px 12px;
         font-size: 0.85em;
     }
     
-    .btn-primary {
-        width: 100%;
-        padding: 15px;
-        font-size: 1em;
-    }
-    
-    .month-navigation {
-        flex-direction: row;
+    /* Header do Calendário */
+    .calendar-header {
+        padding: 15px 10px;
+        margin-bottom: 15px;
+        flex-wrap: wrap;
         gap: 10px;
     }
     
-    .nav-btn {
+    .month-title {
+        font-size: 1.5em;
+        width: 100%;
+        order: 1;
+        margin-bottom: 10px;
+    }
+    
+    .nav-btn-simple {
+        padding: 10px 20px;
+        font-size: 1.2em;
         flex: 1;
-        padding: 12px;
     }
     
-    .month-display {
-        font-size: 1em;
-        padding: 10px;
-    }
-    
+    /* Grid do Calendário */
     .calendar-container {
         padding: 10px;
         border-radius: 15px;
     }
     
     .weekdays {
-        gap: 5px;
+        gap: 3px;
     }
     
     .weekday {
-        font-size: 0.75em;
-        padding: 8px 5px;
+        font-size: 0.7em;
+        padding: 8px 3px;
     }
     
     .calendar-grid {
@@ -1031,28 +1019,40 @@ h1 {
     }
     
     .calendar-day {
-        min-height: 90px;
-        padding: 5px;
+        min-height: 85px;
+        padding: 6px;
+        border-radius: 8px;
     }
     
     .day-number {
+        font-size: 0.9em;
+        margin-bottom: 5px;
+    }
+    
+    .day-label {
+        font-size: 0.7em !important;
+    }
+    
+    /* Agendamentos */
+    .day-content {
+        gap: 3px;
+    }
+    
+    .appointment-item {
+        padding: 5px 6px;
+        font-size: 0.7em;
+        gap: 4px;
+    }
+    
+    .appointment-item .time {
         font-size: 0.85em;
     }
     
-    .agendamento-item {
-        font-size: 0.6em;
-        padding: 3px 5px;
-        margin-bottom: 3px;
+    .appointment-item .name {
+        font-size: 0.9em;
     }
     
-    .agendamento-nome {
-        display: block;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        max-width: 100%;
-    }
-    
+    /* Modal */
     .modal-content {
         width: 95%;
         max-width: 100%;
@@ -1062,10 +1062,29 @@ h1 {
         overflow-y: auto;
     }
     
-    .modal h2 {
+    .modal h2,
+    .modal-cliente-nome {
         font-size: 1.3em;
     }
     
+    .modal-telefone {
+        font-size: 0.9em;
+    }
+    
+    .modal-info-row {
+        font-size: 0.9em;
+    }
+    
+    .modal-servico-nome {
+        font-size: 1.1em;
+    }
+    
+    .btn-cancelar {
+        padding: 12px 20px;
+        font-size: 1em;
+    }
+    
+    /* Formulário */
     .form-group label {
         font-size: 0.9em;
     }
@@ -1073,59 +1092,119 @@ h1 {
     .form-group input,
     .form-group select {
         font-size: 0.95em;
-        padding: 12px;
+        padding: 10px;
     }
     
-    .modal-actions {
+    .form-actions {
         flex-direction: column;
         gap: 10px;
     }
     
-    .modal-actions .btn {
+    .form-actions button {
         width: 100%;
     }
 }
 
 /* Mobile pequeno */
 @media (max-width: 480px) {
-    h1 {
-        font-size: 1.4em;
+    body {
+        padding: 0;
     }
     
-    .subtitle {
-        font-size: 0.85em;
+    .container {
+        padding: 5px;
+    }
+    
+    .btn-sair {
+        top: 5px;
+        right: 5px;
+        padding: 6px 10px;
+        font-size: 0.8em;
+    }
+    
+    .calendar-header {
+        padding: 10px 5px;
+        margin-bottom: 10px;
+    }
+    
+    .month-title {
+        font-size: 1.2em;
+    }
+    
+    .nav-btn-simple {
+        padding: 8px 15px;
+        font-size: 1em;
+        min-width: 50px;
     }
     
     .calendar-day {
-        min-height: 80px;
+        min-height: 75px;
         padding: 4px;
+        border-width: 1px;
+    }
+    
+    .calendar-day:active {
+        transform: scale(0.95);
     }
     
     .day-number {
-        font-size: 0.75em;
+        font-size: 0.8em;
     }
     
-    .agendamento-item {
-        font-size: 0.55em;
-        padding: 2px 4px;
+    .day-label {
+        font-size: 0.65em !important;
+        margin-top: 5px;
+    }
+    
+    .appointment-item {
+        font-size: 0.65em;
+        padding: 4px 5px;
+        gap: 3px;
+    }
+    
+    .appointment-item:active {
+        transform: scale(0.98);
     }
     
     .weekday {
-        font-size: 0.65em;
-        padding: 6px 3px;
+        font-size: 0.6em;
+        padding: 6px 2px;
     }
     
-    .stat-card {
-        padding: 12px 15px;
+    .modal-content {
+        padding: 15px 10px;
+        margin: 10px;
+        width: calc(100% - 20px);
     }
     
-    .stat-number {
-        font-size: 1.3em;
+    .modal-cliente-nome {
+        font-size: 1.1em;
     }
     
-    .nav-btn {
-        font-size: 0.9em;
-        padding: 10px;
+    .modal-telefone {
+        font-size: 0.85em;
+    }
+    
+    .modal-servico-nome {
+        font-size: 1em;
+    }
+    
+    .modal-servico-desc {
+        font-size: 0.85em;
+    }
+    
+    .btn-cancelar {
+        padding: 10px 15px;
+        font-size: 0.95em;
+    }
+    
+    .login-container {
+        padding: 2rem;
+        width: 95%;
+    }
+    
+    .login-header h1 {
+        font-size: 1.8em;
     }
 }
 

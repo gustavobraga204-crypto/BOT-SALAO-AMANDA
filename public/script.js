@@ -62,54 +62,85 @@ document.addEventListener('DOMContentLoaded', async () => {
 // Função para lidar com o login
 async function handleLogin(e) {
     e.preventDefault();
+    console.log('🚀 handleLogin chamado');
     
-    const usuario = document.getElementById('usuario').value;
-    const senha = document.getElementById('senha').value;
+    const usuario = document.getElementById('usuario');
+    const senha = document.getElementById('senha');
     const btnLogin = e.target.querySelector('.btn-login');
     const loginTexto = document.getElementById('loginTexto');
     const loginSpinner = document.getElementById('loginSpinner');
     const loginErro = document.getElementById('loginErro');
     
-    console.log('🔐 Tentando fazer login...', { usuario });
+    console.log('📋 Elementos do formulário:', {
+        usuario: !!usuario,
+        senha: !!senha,
+        btnLogin: !!btnLogin,
+        loginTexto: !!loginTexto,
+        loginSpinner: !!loginSpinner,
+        loginErro: !!loginErro
+    });
+    
+    if (!usuario || !senha) {
+        console.error('❌ Campos de usuário ou senha não encontrados!');
+        return;
+    }
+    
+    const usuarioVal = usuario.value;
+    const senhaVal = senha.value;
+    
+    console.log('🔐 Tentando fazer login...', { usuario: usuarioVal, senhaLength: senhaVal.length });
     
     // Desabilita botão
-    btnLogin.disabled = true;
-    loginTexto.style.display = 'none';
-    loginSpinner.style.display = 'block';
-    loginErro.classList.remove('show');
+    if (btnLogin) btnLogin.disabled = true;
+    if (loginTexto) loginTexto.style.display = 'none';
+    if (loginSpinner) loginSpinner.style.display = 'block';
+    if (loginErro) loginErro.classList.remove('show');
     
     try {
+        console.log('📡 Enviando requisição para /api/login...');
         const response = await fetch('/api/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ usuario, senha })
+            body: JSON.stringify({ usuario: usuarioVal, senha: senhaVal })
         });
         
+        console.log('📥 Resposta recebida:', { status: response.status, ok: response.ok });
+        
         const data = await response.json();
+        console.log('📦 Dados da resposta:', data);
         
-        console.log('📥 Resposta do servidor:', { status: response.status, data });
-        
-        if (response.ok) {
-            console.log('✅ Login bem-sucedido!');
+        if (response.ok && data.token) {
+            console.log('✅ Login bem-sucedido! Token:', data.token.substring(0, 10) + '...');
             tokenAuth = data.token;
             localStorage.setItem('tokenAuth', tokenAuth);
+            console.log('💾 Token salvo no localStorage');
             
             // Aguarda um pouco antes de mostrar o painel
-            await new Promise(resolve => setTimeout(resolve, 100));
+            console.log('⏳ Aguardando 200ms antes de mostrar painel...');
+            await new Promise(resolve => setTimeout(resolve, 200));
+            
+            console.log('🎯 Chamando mostrarPainel()...');
             await mostrarPainel();
+            console.log('✅ mostrarPainel() concluído');
         } else {
-            console.log('❌ Login falhou:', data.erro);
-            loginErro.textContent = '❌ ' + (data.erro || 'Erro ao fazer login');
-            loginErro.classList.add('show');
+            console.log('❌ Login falhou:', data.erro || 'Resposta inválida');
+            if (loginErro) {
+                loginErro.textContent = '❌ ' + (data.erro || 'Erro ao fazer login');
+                loginErro.classList.add('show');
+            }
         }
     } catch (erro) {
         console.error('❌ Erro no login:', erro);
-        loginErro.textContent = '❌ Erro de conexão. Tente novamente.';
-        loginErro.classList.add('show');
+        console.error('Stack trace:', erro.stack);
+        if (loginErro) {
+            loginErro.textContent = '❌ Erro de conexão: ' + erro.message;
+            loginErro.classList.add('show');
+        }
     } finally {
-        btnLogin.disabled = false;
-        loginTexto.style.display = 'block';
-        loginSpinner.style.display = 'none';
+        console.log('🔄 Finalizando handleLogin...');
+        if (btnLogin) btnLogin.disabled = false;
+        if (loginTexto) loginTexto.style.display = 'block';
+        if (loginSpinner) loginSpinner.style.display = 'none';
     }
 }
 
@@ -164,10 +195,7 @@ async function mostrarPainel() {
         }
     } else {
         console.error('❌ Elementos não encontrados:', { loginScreen: !!loginScreen, painelPrincipal: !!painelPrincipal });
-        alert('Erro: Elementos da página não encontrados. Recarregue a página.'
-        }
-    } else {
-        console.error('❌ Elementos não encontrados:', { loginScreen: !!loginScreen, painelPrincipal: !!painelPrincipal });
+        alert('Erro: Elementos da página não encontrados. Recarregue a página.');
     }
 }
 

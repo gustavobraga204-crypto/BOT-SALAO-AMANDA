@@ -88,11 +88,18 @@ function mostrarPainel() {
 
 // === LÓGICA DO PAINEL ===
 function inicializarPainel() {
+    console.log('🎯 Inicializando painel...');
+    
     // Conecta ao WebSocket após autenticação
     conectarWebSocket();
     
     // Carrega dados iniciais
     carregarAgendamentos();
+    
+    // Inicializa o formulário de agendamento
+    setTimeout(() => {
+        inicializarFormularioAgendamento();
+    }, 500);
 }
 
 async function carregarAgendamentos() {
@@ -657,81 +664,99 @@ function fecharModalAgendamento() {
     document.getElementById('formAgendamento').reset();
 }
 
-// Submeter formulário
-document.getElementById('formAgendamento').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    console.log('🚀 Formulário submetido!');
-    
-    const nome = document.getElementById('clienteNome').value.trim();
-    const telefone = document.getElementById('clienteTelefone').value.trim();
-    const servicoIndex = document.getElementById('servicoSelect').value;
-    const data = document.getElementById('dataAgendamento').value;
-    const horario = document.getElementById('horarioSelect').value;
-    
-    console.log('📝 Dados do formulário:', { nome, telefone, servicoIndex, data, horario });
-    
-    // Valida campos
-    if (!nome || !telefone || !servicoIndex || !data || !horario) {
-        console.error('❌ Campos faltando:', { nome: !!nome, telefone: !!telefone, servicoIndex: !!servicoIndex, data: !!data, horario: !!horario });
-        alert('❌ Preencha todos os campos obrigatórios');
+// Função para inicializar o formulário de agendamento
+function inicializarFormularioAgendamento() {
+    const form = document.getElementById('formAgendamento');
+    if (!form) {
+        console.error('❌ Formulário não encontrado!');
         return;
     }
     
-    // Valida se o serviço existe
-    if (!SERVICOS[servicoIndex]) {
-        console.error('❌ Serviço inválido:', servicoIndex);
-        alert('❌ Selecione um serviço válido');
-        return;
-    }
+    console.log('✅ Inicializando formulário de agendamento');
     
-    // Pega adicionais selecionados
-    const adicionaisSelecionados = Array.from(document.querySelectorAll('input[name="adicional"]:checked'))
-        .map(cb => cb.value);
+    // Remove listeners antigos para evitar duplicação
+    const novoForm = form.cloneNode(true);
+    form.parentNode.replaceChild(novoForm, form);
     
-    // Formata data para DD/MM/YYYY
-    const [ano, mes, dia] = data.split('-');
-    const dataFormatada = `${dia}/${mes}/${ano}`;
-    
-    // Dados do agendamento
-    const agendamento = {
-        nome,
-        telefone,
-        servico: SERVICOS[servicoIndex],
-        adicionais: adicionaisSelecionados,
-        data: dataFormatada,
-        horario
-    };
-    
-    console.log('📤 Enviando agendamento:', agendamento);
-    
-    try {
-        const response = await fetch('/api/agendamentos', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${tokenAuth}`
-            },
-            body: JSON.stringify(agendamento)
-        });
+    // Adiciona o listener ao novo formulário
+    document.getElementById('formAgendamento').addEventListener('submit', async (e) => {
+        e.preventDefault();
         
-        console.log('📨 Resposta do servidor:', response.status);
-        const result = await response.json();
-        console.log('📨 Dados da resposta:', result);
+        console.log('🚀 Formulário submetido!');
         
-        if (response.ok) {
-            alert('✅ Agendamento criado com sucesso!');
-            fecharModalAgendamento();
-            // Atualiza o calendário
-            carregarAgendamentos();
-        } else {
-            alert('❌ Erro: ' + result.erro);
+        const nome = document.getElementById('clienteNome').value.trim();
+        const telefone = document.getElementById('clienteTelefone').value.trim();
+        const servicoIndex = document.getElementById('servicoSelect').value;
+        const data = document.getElementById('dataAgendamento').value;
+        const horario = document.getElementById('horarioSelect').value;
+        
+        console.log('📝 Dados do formulário:', { nome, telefone, servicoIndex, data, horario });
+        
+        // Valida campos
+        if (!nome || !telefone || !servicoIndex || !data || !horario) {
+            console.error('❌ Campos faltando:', { nome: !!nome, telefone: !!telefone, servicoIndex: !!servicoIndex, data: !!data, horario: !!horario });
+            alert('❌ Preencha todos os campos obrigatórios');
+            return;
         }
-    } catch (erro) {
-        console.error('Erro ao criar agendamento:', erro);
-        alert('❌ Erro ao criar agendamento. Tente novamente.');
-    }
-});
+        
+        // Valida se o serviço existe
+        if (!SERVICOS[servicoIndex]) {
+            console.error('❌ Serviço inválido:', servicoIndex);
+            alert('❌ Selecione um serviço válido');
+            return;
+        }
+        
+        // Pega adicionais selecionados
+        const adicionaisSelecionados = Array.from(document.querySelectorAll('input[name="adicional"]:checked'))
+            .map(cb => cb.value);
+        
+        // Formata data para DD/MM/YYYY
+        const [ano, mes, dia] = data.split('-');
+        const dataFormatada = `${dia}/${mes}/${ano}`;
+        
+        // Dados do agendamento
+        const agendamento = {
+            nome,
+            telefone,
+            servico: SERVICOS[servicoIndex],
+            adicionais: adicionaisSelecionados,
+            data: dataFormatada,
+            horario
+        };
+        
+        console.log('📤 Enviando agendamento:', agendamento);
+        
+        try {
+            const response = await fetch('/api/agendamentos', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${tokenAuth}`
+                },
+                body: JSON.stringify(agendamento)
+            });
+            
+            console.log('📨 Resposta do servidor:', response.status);
+            const result = await response.json();
+            console.log('📨 Dados da resposta:', result);
+            
+            if (response.ok) {
+                alert('✅ Agendamento criado com sucesso!');
+                fecharModalAgendamento();
+                // Atualiza o calendário
+                carregarAgendamentos();
+            } else {
+                alert('❌ Erro: ' + result.erro);
+            }
+        } catch (erro) {
+            console.error('Erro ao criar agendamento:', erro);
+            alert('❌ Erro ao criar agendamento. Tente novamente.');
+        }
+    });
+    
+    console.log('✅ Listener do formulário registrado com sucesso');
+}
+
 
 // Atualização automática a cada 30 segundos
 setInterval(() => {

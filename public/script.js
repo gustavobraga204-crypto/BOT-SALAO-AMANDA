@@ -200,14 +200,14 @@ socket.on('agendamentos', (agendamentos) => {
 
 function atualizarStatus(conectado) {
     const statusDot = document.getElementById('statusDot');
-    const statusText = document.getElementById('statusText');
+    const statusTexto = document.getElementById('statusTexto');
     
     if (conectado) {
-        statusDot.classList.add('connected');
-        statusText.textContent = 'Online';
+        statusDot.classList.add('online');
+        if (statusTexto) statusTexto.textContent = 'Online';
     } else {
-        statusDot.classList.remove('connected');
-        statusText.textContent = 'Desconectado';
+        statusDot.classList.remove('online');
+        if (statusTexto) statusTexto.textContent = 'Offline';
     }
 }
 

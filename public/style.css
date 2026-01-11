@@ -5,26 +5,58 @@
 }
 
 :root {
+    /* Paleta principal - Rosa sofisticado */
     --primary: #FF69B4;
     --primary-dark: #E75480;
+    --primary-light: #FFB6D9;
     --secondary: #FFC0CB;
-    --bg: #FFF5F7;
-    --card: #FFFFFF;
-    --text: #2D2D2D;
-    --text-light: #666;
-    --success: #4CAF50;
-    --warning: #FF9800;
-    --danger: #F44336;
-    --border: #FFE5EC;
-    --shadow: rgba(255, 105, 180, 0.1);
-    --livre: #E8F5E9;
-    --ocupado: #FFE5EC;
+    --accent: #FF1493;
     
-    /* Override Bootstrap colors */
+    /* Backgrounds */
+    --bg-main: #F8F9FA;
+    --bg-card: #FFFFFF;
+    --bg-hover: #FFF5F7;
+    
+    /* Textos */
+    --text-primary: #2C3E50;
+    --text-secondary: #6C757D;
+    --text-muted: #ADB5BD;
+    
+    /* Estados */
+    --success: #10B981;
+    --warning: #F59E0B;
+    --danger: #EF4444;
+    --info: #3B82F6;
+    
+    /* Bordas e Sombras */
+    --border-color: #E5E7EB;
+    --border-light: #F3F4F6;
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    --shadow-primary: 0 10px 25px rgba(255, 105, 180, 0.2);
+    
+    /* Calendar */
+    --livre: #ECFDF5;
+    --livre-border: #A7F3D0;
+    --ocupado: #FEF2F2;
+    --ocupado-border: #FECACA;
+    
+    /* Bootstrap overrides */
     --bs-primary: #FF69B4;
     --bs-primary-rgb: 255, 105, 180;
-    --bs-danger: #F44336;
-    --bs-success: #4CAF50;
+    --bs-danger: #EF4444;
+    --bs-success: #10B981;
+    --bs-body-bg: #F8F9FA;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg-main);
+    color: var(--text-primary);
+    line-height: 1.6;
+    overflow-x: hidden;
 }
 
 /* === TELA DE LOGIN === */
@@ -39,50 +71,58 @@
     align-items: center;
     justify-content: center;
     z-index: 10000;
-    animation: fadeIn 0.5s ease;
+    animation: fadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from { 
+        opacity: 0;
+    }
+    to { 
+        opacity: 1;
+    }
 }
 
 .login-container {
     background: white;
-    padding: 3rem;
-    border-radius: 25px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-    max-width: 420px;
+    padding: 3rem 2.5rem;
+    border-radius: 24px;
+    box-shadow: var(--shadow-xl);
+    max-width: 440px;
     width: 90%;
-    animation: slideUp 0.5s ease;
+    animation: slideUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 @keyframes slideUp {
     from {
         opacity: 0;
-        transform: translateY(30px);
+        transform: translateY(40px) scale(0.95);
     }
     to {
         opacity: 1;
-        transform: translateY(0);
+        transform: translateY(0) scale(1);
     }
 }
 
 .login-header {
     text-align: center;
-    margin-bottom: 2rem;
+    margin-bottom: 2.5rem;
 }
 
 .login-header h1 {
-    font-size: 2.2em;
-    color: #667eea;
+    font-size: 2rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
     margin-bottom: 0.5rem;
-    text-shadow: none;
 }
 
 .login-header p {
-    color: #666;
-    font-size: 1.1em;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    font-weight: 500;
 }
 
 .login-form {
@@ -94,7 +134,7 @@
 .login-form .form-group {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.6rem;
 }
 
 .login-form label {
@@ -102,27 +142,29 @@
     align-items: center;
     gap: 0.5rem;
     font-weight: 600;
-    color: #333;
-    font-size: 0.95em;
+    color: var(--text-primary);
+    font-size: 0.9rem;
 }
 
 .login-form .icon {
-    font-size: 1.2em;
+    font-size: 1.1em;
 }
 
 .login-form input {
-    padding: 1rem;
-    border: 2px solid #e5e7eb;
+    padding: 0.875rem 1rem;
+    border: 2px solid var(--border-color);
     border-radius: 12px;
-    font-size: 1em;
-    transition: all 0.3s ease;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
     font-family: inherit;
+    background: var(--bg-card);
 }
 
 .login-form input:focus {
     outline: none;
     border-color: #667eea;
     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    background: white;
 }
 
 .btn-login {
@@ -131,10 +173,10 @@
     color: white;
     border: none;
     border-radius: 12px;
-    font-size: 1.1em;
+    font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -144,7 +186,7 @@
 
 .btn-login:hover {
     transform: translateY(-2px);
-    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+    box-shadow: var(--shadow-lg);
 }
 
 .btn-login:active {
@@ -172,6 +214,167 @@
 
 .login-erro {
     padding: 1rem;
+    background: #FEE2E2;
+    border: 1px solid var(--danger);
+    border-radius: 12px;
+    color: var(--danger);
+    font-size: 0.9rem;
+    font-weight: 500;
+    display: none;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.login-erro.show {
+    display: flex;
+    animation: shake 0.4s ease;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    75% { transform: translateX(10px); }
+}
+
+/* === PAINEL PRINCIPAL === */
+#painelPrincipal {
+    display: none;
+    min-height: 100vh;
+    padding: 2rem 1rem;
+}
+
+/* Header do Painel */
+.panel-header {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem 2rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-light);
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.header-title {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.header-title h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.header-title .icon {
+    font-size: 2rem;
+    filter: drop-shadow(0 2px 4px rgba(255, 105, 180, 0.3));
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: var(--bg-hover);
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.status-dot.online {
+    background: var(--success);
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.btn-logout {
+    padding: 0.625rem 1.25rem;
+    background: var(--bg-hover);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    color: var(--text-secondary);
+    font-weight: 500;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-logout:hover {
+    background: white;
+    border-color: var(--danger);
+    color: var(--danger);
+    transform: translateY(-1px);
+}
+
+/* Calendar Header */
+.calendar-header {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--shadow-primary);
+    color: white;
+}
+
+.month-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-align: center;
+    text-transform: capitalize;
+}
+
+.calendar-header .btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(10px);
+}
+
+.calendar-header .btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: scale(1.05);
+}
+
+/* Calendar Container */
+.calendar-container {
+    background: white;
+    border-radius: 16px;
+    border: 1px solid var(--border-light);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+}
     background: #fee;
     border: 1px solid #fcc;
     border-radius: 10px;

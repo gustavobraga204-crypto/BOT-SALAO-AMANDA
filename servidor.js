@@ -364,10 +364,12 @@ app.post('/api/verificar-disponibilidade', verificarAuth, async (req, res) => {
 // API para criar novo agendamento (admin - protegida)
 app.post('/api/agendamentos', verificarAuth, async (req, res) => {
     try {
+        console.log('📥 Recebido pedido de agendamento:', req.body);
         const { nome, telefone, servico, adicionais, data, horario } = req.body;
         
         // Valida campos obrigatórios
         if (!nome || !telefone || !servico || !data || !horario) {
+            console.log('❌ Campos obrigatórios faltando');
             return res.status(400).json({ erro: 'Campos obrigatórios faltando' });
         }
         
@@ -383,9 +385,11 @@ app.post('/api/agendamentos', verificarAuth, async (req, res) => {
         
         // Limpa telefone
         const telefoneLimpo = telefone.replace(/\D/g, '');
+        console.log('📞 Telefone limpo:', telefoneLimpo);
         
         // Cadastra cliente se não existir
         if (!(await clienteExiste(telefoneLimpo))) {
+            console.log('👤 Cadastrando novo cliente:', nome);
             await cadastrarCliente(telefoneLimpo, nome);
         }
         
@@ -397,7 +401,15 @@ app.post('/api/agendamentos', verificarAuth, async (req, res) => {
             horario
         };
         
-        await salvarAgendamento(telefoneLimpo, agendamento);
+        console.log('💾 Salvando agendamento:', agendamento);
+        const sucesso = await salvarAgendamento(telefoneLimpo, agendamento);
+        
+        if (!sucesso) {
+            console.log('❌ Falha ao salvar agendamento');
+            return res.status(500).json({ erro: 'Falha ao salvar no banco de dados' });
+        }
+        
+        console.log('✅ Agendamento salvo com sucesso!');
         
         // Notifica mudança
         await notificarMudanca();

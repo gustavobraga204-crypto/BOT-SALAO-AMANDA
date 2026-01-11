@@ -667,6 +667,14 @@ document.getElementById('formAgendamento').addEventListener('submit', async (e) 
     const data = document.getElementById('dataAgendamento').value;
     const horario = document.getElementById('horarioSelect').value;
     
+    console.log('📝 Dados do formulário:', { nome, telefone, servicoIndex, data, horario });
+    
+    // Valida campos
+    if (!nome || !telefone || !servicoIndex || !data || !horario) {
+        alert('❌ Preencha todos os campos obrigatórios');
+        return;
+    }
+    
     // Pega adicionais selecionados
     const adicionaisSelecionados = Array.from(document.querySelectorAll('input[name="adicional"]:checked'))
         .map(cb => cb.value);
@@ -685,6 +693,8 @@ document.getElementById('formAgendamento').addEventListener('submit', async (e) 
         horario
     };
     
+    console.log('📤 Enviando agendamento:', agendamento);
+    
     try {
         const response = await fetch('/api/agendamentos', {
             method: 'POST',
@@ -695,11 +705,15 @@ document.getElementById('formAgendamento').addEventListener('submit', async (e) 
             body: JSON.stringify(agendamento)
         });
         
+        console.log('📨 Resposta do servidor:', response.status);
         const result = await response.json();
+        console.log('📨 Dados da resposta:', result);
         
         if (response.ok) {
             alert('✅ Agendamento criado com sucesso!');
             fecharModalAgendamento();
+            // Atualiza o calendário
+            carregarAgendamentos();
         } else {
             alert('❌ Erro: ' + result.erro);
         }

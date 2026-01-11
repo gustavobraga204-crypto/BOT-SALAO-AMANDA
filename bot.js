@@ -3,6 +3,7 @@ import pino from 'pino';
 import qrcode from 'qrcode-terminal';
 import { fluxos } from './fluxos.js';
 import { carregarDatabase } from './database.js';
+import { obterSessao } from './sessoes.js';
 
 // Carrega base de dados ao iniciar
 carregarDatabase();
@@ -61,8 +62,31 @@ async function conectar() {
 
             const de = msg.key.remoteJid;
             const texto = msg.message?.conversation || msg.message?.extendedTextMessage?.text || '';
+            const textoNormalizado = texto.trim().toLowerCase();
 
             console.log(`📨 ${de.split('@')[0]}: ${texto}`);
+
+            // Palavras de início permitidas
+            const palavrasInicio = ['oi', 'olá', 'ola', 'bom dia', 'boa tarde', 'boa noite', 'hello', 'start', 'iniciar'];
+            
+            // Verifica se o usuário tem sessão ativa
+            const sessaoAtual = obterSessao(de);
+            const temSessaoAtiva = sessaoAtual && sessaoAtual.etapa && sessaoAtual.etapa !== 'cadastro_nome';
+            
+            // Se não tem sessão ativa, só aceita palavras de início
+            if (!temSessaoAtiva && !palavrasInicio.includes(textoNormalizado)) {
+                await sock.sendMessage(de, { 
+                    text: '👋 Olá! Para iniciar, envie uma das seguintes mensagens:\n\n' +
+                          '• Oi\n' +
+                          '• Olá\n' +
+                          '• Bom dia\n' +
+                          '• Boa tarde\n' +
+                          '• Boa noite\n' +
+                          '• Hello\n' +
+                          '• Start ou Iniciar'
+                });
+                return;
+            }
 
             const resposta = fluxos(de, texto.trim());
             

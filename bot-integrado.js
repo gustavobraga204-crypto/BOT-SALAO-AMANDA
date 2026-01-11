@@ -97,18 +97,9 @@ async function conectar() {
             const sessaoAtual = obterSessao(de);
             const temSessaoAtiva = sessaoAtual && sessaoAtual.etapa && sessaoAtual.etapa !== 'cadastro_nome';
             
-            // Se não tem sessão ativa, só aceita palavras de início
+            // Se não tem sessão ativa, só aceita palavras de início - IGNORA silenciosamente
             if (!temSessaoAtiva && !palavrasInicio.includes(textoNormalizado)) {
-                await sock.sendMessage(de, { 
-                    text: '👋 Olá! Para iniciar, envie uma das seguintes mensagens:\n\n' +
-                          '• Oi\n' +
-                          '• Olá\n' +
-                          '• Bom dia\n' +
-                          '• Boa tarde\n' +
-                          '• Boa noite\n' +
-                          '• Hello\n' +
-                          '• Start ou Iniciar'
-                });
+                console.log('⚠️ Mensagem ignorada - palavra de início inválida');
                 return;
             }
 

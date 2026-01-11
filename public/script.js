@@ -3,21 +3,35 @@ let tokenAuth = localStorage.getItem('tokenAuth');
 
 // Verifica autenticação ao carregar página
 document.addEventListener('DOMContentLoaded', async () => {
+    console.log('🔄 Página carregada, verificando autenticação...');
+    console.log('🔑 Token armazenado:', tokenAuth ? 'Sim' : 'Não');
+    
     if (tokenAuth) {
         try {
+            console.log('📡 Verificando token com servidor...');
             const response = await fetch('/api/verificar-auth', {
                 headers: { 'Authorization': `Bearer ${tokenAuth}` }
             });
             
+            console.log('📥 Resposta da verificação:', response.status);
+            
             if (response.ok) {
+                console.log('✅ Token válido, mostrando painel...');
                 mostrarPainel();
                 return;
+            } else {
+                console.log('❌ Token inválido, removendo...');
+                localStorage.removeItem('tokenAuth');
+                tokenAuth = null;
             }
         } catch (erro) {
-            console.error('Erro ao verificar autenticação:', erro);
+            console.error('❌ Erro ao verificar autenticação:', erro);
+            localStorage.removeItem('tokenAuth');
+            tokenAuth = null;
         }
     }
     
+    console.log('📋 Mostrando tela de login');
     mostrarLogin();
 });
 
@@ -82,14 +96,38 @@ document.getElementById('btnSair')?.addEventListener('click', () => {
 });
 
 function mostrarLogin() {
-    document.getElementById('loginScreen').style.display = 'flex';
-    document.getElementById('painelPrincipal').style.display = 'none';
+    console.log('🔐 Exibindo tela de login');
+    const loginScreen = document.getElementById('loginScreen');
+    const painelPrincipal = document.getElementById('painelPrincipal');
+    
+    if (loginScreen && painelPrincipal) {
+        loginScreen.style.display = 'flex';
+        painelPrincipal.style.display = 'none';
+        console.log('✅ Tela de login exibida');
+    } else {
+        console.error('❌ Elementos não encontrados:', { loginScreen: !!loginScreen, painelPrincipal: !!painelPrincipal });
+    }
 }
 
 function mostrarPainel() {
-    document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('painelPrincipal').style.display = 'block';
-    inicializarPainel();
+    console.log('📊 Exibindo painel');
+    const loginScreen = document.getElementById('loginScreen');
+    const painelPrincipal = document.getElementById('painelPrincipal');
+    
+    if (loginScreen && painelPrincipal) {
+        loginScreen.style.display = 'none';
+        painelPrincipal.style.display = 'block';
+        console.log('✅ Painel exibido, inicializando...');
+        
+        try {
+            inicializarPainel();
+            console.log('✅ Painel inicializado com sucesso');
+        } catch (erro) {
+            console.error('❌ Erro ao inicializar painel:', erro);
+        }
+    } else {
+        console.error('❌ Elementos não encontrados:', { loginScreen: !!loginScreen, painelPrincipal: !!painelPrincipal });
+    }
 }
 
 // === LÓGICA DO PAINEL ===

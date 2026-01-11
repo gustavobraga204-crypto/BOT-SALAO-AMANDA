@@ -1,0 +1,143 @@
+/* Ajustes específicos para mobile */
+
+/* Layout geral */
+body {
+    font-size: 14px;
+}
+
+/* Header mais compacto */
+.calendar-header .card-body {
+    padding: 8px !important;
+}
+
+.month-title {
+    font-size: 1.3em !important;
+}
+
+.calendar-header .btn {
+    padding: 6px 12px !important;
+    font-size: 1.2em !important;
+}
+
+/* Container do calendário */
+.calendar-container .card-body {
+    padding: 5px !important;
+}
+
+/* Dias da semana menores */
+.weekdays {
+    gap: 2px !important;
+    margin-bottom: 5px !important;
+}
+
+.weekday {
+    padding: 4px 2px !important;
+    font-size: 0.65em !important;
+    border-radius: 5px !important;
+}
+
+/* Grid do calendário */
+.calendar-grid {
+    gap: 3px !important;
+}
+
+/* Dias do calendário */
+.calendar-day {
+    min-height: 65px !important;
+    padding: 3px !important;
+    border-width: 1px !important;
+    border-radius: 6px !important;
+}
+
+.day-number {
+    font-size: 0.85em !important;
+    margin-bottom: 2px !important;
+}
+
+/* Label "Clique para agendar" */
+.day-label {
+    font-size: 0.55em !important;
+    line-height: 1.1 !important;
+    margin-top: 1px !important;
+}
+
+/* Agendamentos dentro dos dias */
+.appointment-item {
+    padding: 2px 3px !important;
+    font-size: 0.55em !important;
+    gap: 2px !important;
+    border-left-width: 2px !important;
+    border-radius: 3px !important;
+}
+
+.appointment-item .time {
+    font-size: 0.9em !important;
+}
+
+.appointment-item .name {
+    font-size: 0.85em !important;
+}
+
+/* Botão sair */
+.btn-danger.position-fixed {
+    padding: 4px 8px !important;
+    font-size: 0.75em !important;
+    margin: 8px !important;
+}
+
+/* Dias ocupados */
+.calendar-day.occupied {
+    background: #FFF3E0 !important;
+}
+
+/* Dias hoje */
+.calendar-day.hoje {
+    border-width: 2px !important;
+    border-color: var(--primary) !important;
+}
+
+/* Ajustes para telas muito pequenas */
+@media (max-width: 375px) {
+    .calendar-day {
+        min-height: 60px !important;
+        padding: 2px !important;
+    }
+    
+    .day-number {
+        font-size: 0.8em !important;
+    }
+    
+    .day-label {
+        font-size: 0.5em !important;
+    }
+    
+    .appointment-item {
+        font-size: 0.5em !important;
+    }
+}
+
+/* Ajustes para tablets */
+@media (min-width: 768px) {
+    .calendar-day {
+        min-height: 100px !important;
+        padding: 8px !important;
+    }
+    
+    .day-number {
+        font-size: 1em !important;
+    }
+    
+    .day-label {
+        font-size: 0.8em !important;
+    }
+    
+    .appointment-item {
+        font-size: 0.8em !important;
+        padding: 6px 8px !important;
+    }
+    
+    .weekday {
+        font-size: 0.8em !important;
+        padding: 8px 4px !important;
+    }
+}

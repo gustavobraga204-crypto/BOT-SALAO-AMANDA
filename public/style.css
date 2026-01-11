@@ -404,6 +404,30 @@ h1 {
     border-color: var(--primary);
 }
 
+.btn-cancelar {
+    width: 100%;
+    background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 15px;
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 5px 15px rgba(244, 67, 54, 0.3);
+}
+
+.btn-cancelar:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(244, 67, 54, 0.4);
+    background: linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%);
+}
+
+.btn-cancelar:active {
+    transform: translateY(0);
+}
+
 .month-navigation {
     display: flex;
     gap: 15px;
@@ -570,18 +594,32 @@ h1 {
 .appointment-item {
     background: rgba(255, 152, 0, 0.1);
     border-left: 3px solid var(--warning);
-    padding: 6px 8px;
-    border-radius: 5px;
+    padding: 8px 10px;
+    border-radius: 8px;
     font-size: 0.85em;
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.appointment-item:hover {
+    background: var(--warning);
+    color: white;
+    transform: translateX(5px);
+    box-shadow: 0 3px 10px rgba(255, 152, 0, 0.3);
 }
 
 .appointment-item .time {
     font-weight: bold;
     color: var(--warning);
     font-size: 0.9em;
+    transition: color 0.3s;
+}
+
+.appointment-item:hover .time {
+    color: white;
 }
 
 .appointment-item .name {
@@ -590,6 +628,11 @@ h1 {
     overflow: hidden;
     text-overflow: ellipsis;
     flex: 1;
+    transition: color 0.3s;
+}
+
+.appointment-item:hover .name {
+    color: white;
 }
 
 .day-agendamentos {

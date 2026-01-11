@@ -265,7 +265,7 @@ function renderizarCalendario() {
             diaHTML += `<div class="day-number">${dia}</div>`;
             diaHTML += `<div class="day-content">`;
             agendamentosDia.forEach(ag => {
-                diaHTML += `<div class="appointment-item">`;
+                diaHTML += `<div class="appointment-item" onclick="event.stopPropagation(); abrirModalCancelamento(${JSON.stringify(ag).replace(/"/g, '&quot;')})">`;
                 diaHTML += `<span class="time">${ag.agendamento.horario}</span> `;
                 diaHTML += `<span class="name">${ag.nome}</span>`;
                 diaHTML += `</div>`;
@@ -392,6 +392,79 @@ function abrirModal(agendamento) {
     `;
     
     modal.style.display = 'block';
+}
+
+// Modal com opção de cancelamento
+function abrirModalCancelamento(agendamento) {
+    const modal = document.getElementById('modal');
+    const modalBody = document.getElementById('modalBody');
+    
+    modalBody.innerHTML = `
+        <div class="modal-header">
+            <div class="modal-cliente-nome">${agendamento.nome}</div>
+            <div class="modal-telefone">📱 ${formatarTelefone(agendamento.telefone)}</div>
+        </div>
+        <div class="modal-body-content">
+            <div class="modal-info-row">
+                <span class="modal-label">📅 Data:</span>
+                <span class="modal-value">${agendamento.agendamento.data}</span>
+            </div>
+            <div class="modal-info-row">
+                <span class="modal-label">🕐 Horário:</span>
+                <span class="modal-value">${agendamento.agendamento.horario}</span>
+            </div>
+            <div class="modal-servico-box">
+                <div class="modal-servico-nome">${agendamento.agendamento.servico.nome}</div>
+                <div class="modal-servico-desc">${agendamento.agendamento.servico.descricao}</div>
+                <div class="modal-servico-details">
+                    <span class="modal-valor">${agendamento.agendamento.servico.valor}</span>
+                    <span class="modal-duracao">⏱️ ${agendamento.agendamento.servico.duracao}</span>
+                </div>
+            </div>
+            ${agendamento.agendamento.adicionais && agendamento.agendamento.adicionais.length > 0 ? `
+                <div style="margin-top: 15px;">
+                    <strong>Adicionais:</strong><br>
+                    ${agendamento.agendamento.adicionais.map(a => `<span class="adicional-tag">${a}</span>`).join('')}
+                </div>
+            ` : ''}
+            <div style="margin-top: 25px; padding-top: 20px; border-top: 2px solid var(--border);">
+                <button onclick="cancelarAgendamentoPainel('${agendamento.telefone}', '${agendamento.nome}')" class="btn-cancelar">
+                    ❌ Cancelar Agendamento
+                </button>
+            </div>
+        </div>
+    `;
+    
+    modal.style.display = 'block';
+}
+
+// Função para cancelar agendamento
+async function cancelarAgendamentoPainel(telefone, nome) {
+    if (!confirm(`Deseja realmente cancelar o agendamento de ${nome}?`)) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/agendamentos/${telefone}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${tokenAuth}`
+            }
+        });
+        
+        if (response.ok) {
+            document.getElementById('modal').style.display = 'none';
+            alert('✅ Agendamento cancelado com sucesso!');
+            // Atualiza a lista
+            carregarAgendamentos();
+        } else {
+            const error = await response.json();
+            alert('❌ Erro ao cancelar: ' + (error.erro || 'Tente novamente'));
+        }
+    } catch (erro) {
+        console.error('Erro ao cancelar agendamento:', erro);
+        alert('❌ Erro ao cancelar agendamento. Tente novamente.');
+    }
 }
 
 // Fechar modal

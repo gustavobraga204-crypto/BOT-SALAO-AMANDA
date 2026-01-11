@@ -45,15 +45,25 @@ await carregarDatabase();
 app.post('/api/login', (req, res) => {
     const { usuario, senha } = req.body;
     
+    console.log('🔐 Tentativa de login:', { 
+        usuario, 
+        senhaRecebida: senha ? '***' : 'undefined',
+        usuarioEsperado: ADMIN_USER,
+        senhaEsperada: ADMIN_PASS ? '***' : 'undefined'
+    });
+    
     if (usuario === ADMIN_USER && senha === ADMIN_PASS) {
         const token = gerarToken();
         sessoes.set(token, { usuario, data: new Date() });
+        
+        console.log('✅ Login bem-sucedido para:', usuario);
         
         // Remove sessões antigas (após 24h)
         setTimeout(() => sessoes.delete(token), 24 * 60 * 60 * 1000);
         
         res.json({ sucesso: true, token });
     } else {
+        console.log('❌ Login falhou - credenciais inválidas');
         res.status(401).json({ erro: 'Usuário ou senha inválidos' });
     }
 });
@@ -466,4 +476,8 @@ registrarNotificacaoServidor(notificarMudanca);
 // Inicia servidor
 httpServer.listen(PORT, '0.0.0.0', () => {
     console.log(`🌐 Painel disponível em: http://localhost:${PORT}`);
+    console.log(`🔑 Credenciais de acesso:`);
+    console.log(`   Usuário: ${ADMIN_USER}`);
+    console.log(`   Senha: ${ADMIN_PASS}`);
+    console.log(`📝 Para alterar, configure as variáveis ADMIN_USER e ADMIN_PASS`);
 });

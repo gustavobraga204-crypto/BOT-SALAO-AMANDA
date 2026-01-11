@@ -32,6 +32,8 @@ document.getElementById('loginForm')?.addEventListener('submit', async (e) => {
     const loginSpinner = document.getElementById('loginSpinner');
     const loginErro = document.getElementById('loginErro');
     
+    console.log('🔐 Tentando fazer login...', { usuario });
+    
     // Desabilita botão
     btnLogin.disabled = true;
     loginTexto.style.display = 'none';
@@ -47,16 +49,20 @@ document.getElementById('loginForm')?.addEventListener('submit', async (e) => {
         
         const data = await response.json();
         
+        console.log('📥 Resposta do servidor:', { status: response.status, data });
+        
         if (response.ok) {
+            console.log('✅ Login bem-sucedido!');
             tokenAuth = data.token;
             localStorage.setItem('tokenAuth', tokenAuth);
             mostrarPainel();
         } else {
+            console.log('❌ Login falhou:', data.erro);
             loginErro.textContent = '❌ ' + (data.erro || 'Erro ao fazer login');
             loginErro.classList.add('show');
         }
     } catch (erro) {
-        console.error('Erro no login:', erro);
+        console.error('❌ Erro no login:', erro);
         loginErro.textContent = '❌ Erro de conexão. Tente novamente.';
         loginErro.classList.add('show');
     } finally {

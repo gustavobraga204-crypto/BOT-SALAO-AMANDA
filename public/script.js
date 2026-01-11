@@ -1,4 +1,127 @@
+// === SISTEMA DE AUTENTICAÇÃO ===
+let tokenAuth = localStorage.getItem('tokenAuth');
+
+// Verifica autenticação ao carregar página
+document.addEventListener('DOMContentLoaded', async () => {
+    if (tokenAuth) {
+        try {
+            const response = await fetch('/api/verificar-auth', {
+                headers: { 'Authorization': `Bearer ${tokenAuth}` }
+            });
+            
+            if (response.ok) {
+                mostrarPainel();
+                return;
+            }
+        } catch (erro) {
+            console.error('Erro ao verificar autenticação:', erro);
+        }
+    }
+    
+    mostrarLogin();
+});
+
+// Form de login
+document.getElementById('loginForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const usuario = document.getElementById('usuario').value;
+    const senha = document.getElementById('senha').value;
+    const btnLogin = e.target.querySelector('.btn-login');
+    const loginTexto = document.getElementById('loginTexto');
+    const loginSpinner = document.getElementById('loginSpinner');
+    const loginErro = document.getElementById('loginErro');
+    
+    // Desabilita botão
+    btnLogin.disabled = true;
+    loginTexto.style.display = 'none';
+    loginSpinner.style.display = 'block';
+    loginErro.classList.remove('show');
+    
+    try {
+        const response = await fetch('/api/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ usuario, senha })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            tokenAuth = data.token;
+            localStorage.setItem('tokenAuth', tokenAuth);
+            mostrarPainel();
+        } else {
+            loginErro.textContent = '❌ ' + (data.erro || 'Erro ao fazer login');
+            loginErro.classList.add('show');
+        }
+    } catch (erro) {
+        console.error('Erro no login:', erro);
+        loginErro.textContent = '❌ Erro de conexão. Tente novamente.';
+        loginErro.classList.add('show');
+    } finally {
+        btnLogin.disabled = false;
+        loginTexto.style.display = 'block';
+        loginSpinner.style.display = 'none';
+    }
+});
+
+// Botão sair
+document.getElementById('btnSair')?.addEventListener('click', () => {
+    if (confirm('Deseja realmente sair?')) {
+        localStorage.removeItem('tokenAuth');
+        tokenAuth = null;
+        window.location.reload();
+    }
+});
+
+function mostrarLogin() {
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('painelPrincipal').style.display = 'none';
+}
+
+function mostrarPainel() {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('painelPrincipal').style.display = 'block';
+    inicializarPainel();
+}
+
+// === LÓGICA DO PAINEL ===
+function inicializarPainel() {
+    // Conecta ao WebSocket após autenticação
+    conectarWebSocket();
+    
+    // Carrega dados iniciais
+    carregarAgendamentos();
+}
+
+async function carregarAgendamentos() {
+    try {
+        const response = await fetch('/api/agendamentos', {
+            headers: { 'Authorization': `Bearer ${tokenAuth}` }
+        });
+        
+        if (!response.ok) {
+            if (response.status === 401) {
+                localStorage.removeItem('tokenAuth');
+                window.location.reload();
+            }
+            throw new Error('Erro ao carregar agendamentos');
+        }
+        
+        todosAgendamentos = await response.json();
+        renderizarCalendario();
+        atualizarEstatisticas();
+    } catch (erro) {
+        console.error('Erro ao carregar agendamentos:', erro);
+    }
+}
+
 // Conecta ao WebSocket
+function conectarWebSocket() {
+    // Socket já está definido globalmente
+}
+
 const socket = io();
 
 let todosAgendamentos = [];
@@ -434,7 +557,8 @@ document.getElementById('formAgendamento').addEventListener('submit', async (e) 
         const response = await fetch('/api/agendamentos', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${tokenAuth}`
             },
             body: JSON.stringify(agendamento)
         });
@@ -455,8 +579,21 @@ document.getElementById('formAgendamento').addEventListener('submit', async (e) 
 
 // Atualização automática a cada 30 segundos
 setInterval(() => {
-    fetch('/api/agendamentos')
-        .then(res => res.json())
+    if (!tokenAuth) return;
+    
+    fetch('/api/agendamentos', {
+        headers: { 'Authorization': `Bearer ${tokenAuth}` }
+    })
+        .then(res => {
+            if (!res.ok) {
+                if (res.status === 401) {
+                    localStorage.removeItem('tokenAuth');
+                    window.location.reload();
+                }
+                throw new Error('Erro na requisição');
+            }
+            return res.json();
+        })
         .then(agendamentos => {
             todosAgendamentos = agendamentos;
             renderizarCalendario();

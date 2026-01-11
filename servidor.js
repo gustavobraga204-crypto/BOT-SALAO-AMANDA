@@ -12,11 +12,56 @@ const io = new Server(httpServer);
 // Porta dinâmica para produção
 const PORT = process.env.PORT || 3000;
 
+// Credenciais de login (em produção, usar variáveis de ambiente)
+const ADMIN_USER = process.env.ADMIN_USER || 'admin';
+const ADMIN_PASS = process.env.ADMIN_PASS || 'amanda2026';
+
+// Armazena tokens de sessão (em produção, usar Redis ou banco)
+const sessoes = new Map();
+
+// Gera token aleatório
+function gerarToken() {
+    return Math.random().toString(36).substring(2) + Date.now().toString(36);
+}
+
+// Middleware para verificar autenticação
+function verificarAuth(req, res, next) {
+    const token = req.headers['authorization']?.replace('Bearer ', '');
+    
+    if (!token || !sessoes.has(token)) {
+        return res.status(401).json({ erro: 'Não autorizado' });
+    }
+    
+    next();
+}
+
 // Middleware para JSON
 app.use(express.json());
 
 // Carrega database (aguarda se for async)
 await carregarDatabase();
+
+// Rota de login
+app.post('/api/login', (req, res) => {
+    const { usuario, senha } = req.body;
+    
+    if (usuario === ADMIN_USER && senha === ADMIN_PASS) {
+        const token = gerarToken();
+        sessoes.set(token, { usuario, data: new Date() });
+        
+        // Remove sessões antigas (após 24h)
+        setTimeout(() => sessoes.delete(token), 24 * 60 * 60 * 1000);
+        
+        res.json({ sucesso: true, token });
+    } else {
+        res.status(401).json({ erro: 'Usuário ou senha inválidos' });
+    }
+});
+
+// Rota para verificar se está autenticado
+app.get('/api/verificar-auth', verificarAuth, (req, res) => {
+    res.json({ autenticado: true });
+});
 
 // Servir arquivos estáticos
 app.use(express.static('public'));
@@ -196,14 +241,14 @@ app.get('/qrcode', async (req, res) => {
     }
 });
 
-// API para obter todos os agendamentos
-app.get('/api/agendamentos', async (req, res) => {
+// API para obter todos os agendamentos (protegida)
+app.get('/api/agendamentos', verificarAuth, async (req, res) => {
     const agendamentos = await obterAgendamentos();
     res.json(agendamentos);
 });
 
-// API para verificar disponibilidade
-app.post('/api/verificar-disponibilidade', async (req, res) => {
+// API para verificar disponibilidade (protegida)
+app.post('/api/verificar-disponibilidade', verificarAuth, async (req, res) => {
     const { data, horario } = req.body;
     const agendamentos = await obterAgendamentos();
     const ocupado = agendamentos.some(ag => 
@@ -212,8 +257,8 @@ app.post('/api/verificar-disponibilidade', async (req, res) => {
     res.json({ disponivel: !ocupado });
 });
 
-// API para criar novo agendamento (admin)
-app.post('/api/agendamentos', async (req, res) => {
+// API para criar novo agendamento (admin - protegida)
+app.post('/api/agendamentos', verificarAuth, async (req, res) => {
     try {
         const { nome, telefone, servico, adicionais, data, horario } = req.body;
         
@@ -260,8 +305,8 @@ app.post('/api/agendamentos', async (req, res) => {
     }
 });
 
-// API para cancelar agendamento
-app.delete('/api/agendamentos/:telefone', async (req, res) => {
+// API para cancelar agendamento (protegida)
+app.delete('/api/agendamentos/:telefone', verificarAuth, async (req, res) => {
     try {
         const { telefone } = req.params;
         const sucesso = await cancelarAgendamento(telefone);

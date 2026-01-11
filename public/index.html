@@ -7,10 +7,46 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
+    <!-- Tela de Login -->
+    <div id="loginScreen" class="login-screen">
+        <div class="login-container">
+            <div class="login-header">
+                <h1>💅 Amanda Nails Designer</h1>
+                <p>Painel Administrativo</p>
+            </div>
+            <form id="loginForm" class="login-form">
+                <div class="form-group">
+                    <label for="usuario">
+                        <span class="icon">👤</span>
+                        Usuário
+                    </label>
+                    <input type="text" id="usuario" placeholder="Digite seu usuário" required autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label for="senha">
+                        <span class="icon">🔒</span>
+                        Senha
+                    </label>
+                    <input type="password" id="senha" placeholder="Digite sua senha" required autocomplete="current-password">
+                </div>
+                <div id="loginErro" class="login-erro"></div>
+                <button type="submit" class="btn-login">
+                    <span id="loginTexto">Entrar</span>
+                    <span id="loginSpinner" class="login-spinner" style="display: none;"></span>
+                </button>
+            </form>
+            <div class="login-footer">
+                <p>🔒 Acesso restrito a administradores</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Painel Principal -->
+    <div id="painelPrincipal" class="container" style="display: none;">
         <header>
             <h1>💅 Amanda Nails Designer</h1>
             <p class="subtitle">Agenda Mensal - Painel Administrativo</p>
+            <button id="btnSair" class="btn-sair">🚪 Sair</button>
             <div class="header-controls">
                 <div class="stats">
                     <div class="stat-card">

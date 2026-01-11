@@ -778,7 +778,6 @@ function abrirModalAgendamento() {
     document.getElementById('dataAgendamento').min = hoje;
     
     // Listener para atualizar horários quando serviço mudar
-    const servicoSelect = document.getElementById('servicoSelect');
     servicoSelect.addEventListener('change', () => {
         const dataInput = document.getElementById('dataAgendamento');
         if (dataInput.value) {

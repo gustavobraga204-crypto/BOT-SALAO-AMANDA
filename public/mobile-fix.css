@@ -3,116 +3,149 @@
 @media (max-width: 768px) {
     /* Padding geral reduzido */
     #painelPrincipal {
-        padding: 0.75rem !important;
+        padding: 0.5rem !important;
     }
     
     .container {
         padding: 0 !important;
         max-width: 100% !important;
+        margin: 0 !important;
     }
     
     /* Header do painel */
     .panel-header {
-        padding: 1rem !important;
-        margin-bottom: 1rem !important;
+        padding: 0.75rem !important;
+        margin-bottom: 0.75rem !important;
         border-radius: 12px !important;
     }
     
     .header-title h1 {
-        font-size: 1.25rem !important;
+        font-size: 1.1rem !important;
     }
     
     .header-title .icon {
-        font-size: 1.5rem !important;
+        font-size: 1.3rem !important;
+    }
+    
+    .header-actions {
+        flex-wrap: nowrap !important;
+        gap: 0.5rem !important;
+    }
+    
+    .status-indicator {
+        font-size: 0.75rem !important;
+        padding: 0.375rem 0.625rem !important;
     }
     
     /* Header do calendário */
     .calendar-header {
-        padding: 1rem 0.75rem !important;
-        margin-bottom: 1rem !important;
+        padding: 0.75rem 0.5rem !important;
+        margin-bottom: 0.75rem !important;
         border-radius: 12px !important;
     }
     
     .month-title {
-        font-size: 1.25rem !important;
+        font-size: 1.1rem !important;
     }
     
     .calendar-header .btn {
-        padding: 0.5rem !important;
-        font-size: 1rem !important;
+        padding: 0.4rem 0.6rem !important;
+        font-size: 0.9rem !important;
+        min-width: 36px !important;
     }
     
     /* Container do calendário */
     .calendar-container {
         border-radius: 12px !important;
         overflow: hidden !important;
+        margin: 0 !important;
     }
     
     .card-body {
-        padding: 0.5rem !important;
+        padding: 0.375rem !important;
     }
     
     /* Grid do calendário - AJUSTE CRÍTICO */
     .calendar-grid {
-        gap: 0.25rem !important;
-        padding: 0.25rem !important;
+        gap: 0.2rem !important;
+        padding: 0.2rem !important;
+        width: 100% !important;
+        display: grid !important;
+        grid-template-columns: repeat(7, 1fr) !important;
     }
     
     /* Headers dos dias da semana */
     .calendar-day-header {
-        font-size: 0.65rem !important;
-        padding: 0.5rem 0.125rem !important;
+        font-size: 0.6rem !important;
+        padding: 0.375rem 0.1rem !important;
         letter-spacing: 0 !important;
+        text-align: center !important;
     }
     
     /* Dias do calendário - COMPACTOS */
     .calendar-day {
-        min-height: 55px !important;
+        aspect-ratio: 1 !important;
+        min-height: 0 !important;
+        height: auto !important;
         padding: 0.25rem !important;
-        border-radius: 8px !important;
-        font-size: 0.8rem !important;
+        border-radius: 6px !important;
+        font-size: 0.75rem !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
     }
     
     .day-number {
-        font-size: 0.9rem !important;
-        margin-bottom: 0.125rem !important;
+        font-size: 0.85rem !important;
+        margin-bottom: 0.1rem !important;
+        font-weight: 700 !important;
     }
     
     .day-label {
-        font-size: 0.6rem !important;
+        font-size: 0.55rem !important;
+        text-align: center !important;
+        line-height: 1.1 !important;
     }
     
     /* Agendamentos nos dias */
     .appointments-list {
-        gap: 0.25rem !important;
-        margin-top: 0.25rem !important;
+        gap: 0.2rem !important;
+        margin-top: 0.2rem !important;
+        width: 100% !important;
     }
     
     .appointment-item {
-        padding: 0.25rem !important;
-        font-size: 0.65rem !important;
+        padding: 0.2rem !important;
+        font-size: 0.6rem !important;
         border-radius: 4px !important;
         border-left-width: 2px !important;
     }
     
     .appointment-time {
-        font-size: 0.65rem !important;
+        font-size: 0.6rem !important;
+        margin-bottom: 0 !important;
     }
     
     .appointment-name {
-        font-size: 0.6rem !important;
+        font-size: 0.55rem !important;
     }
 }
 
 /* Mobile muito pequeno */
 @media (max-width: 380px) {
+    .calendar-grid {
+        gap: 0.15rem !important;
+        padding: 0.15rem !important;
+    }
+    
     .calendar-day {
-        min-height: 50px !important;
         padding: 0.2rem !important;
+        border-radius: 4px !important;
     }
     
     .day-number {
-        font-size: 0.85rem !important;
+        font-size: 0.8rem !important;
     }
     
     .day-label {
@@ -120,8 +153,13 @@
     }
     
     .calendar-day-header {
-        font-size: 0.6rem !important;
-        padding: 0.375rem 0.1rem !important;
+        font-size: 0.55rem !important;
+        padding: 0.3rem 0.05rem !important;
+    }
+    
+    .appointment-item {
+        font-size: 0.55rem !important;
+        padding: 0.15rem !important;
     }
 }
 

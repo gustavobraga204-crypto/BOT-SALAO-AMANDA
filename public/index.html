@@ -43,44 +43,20 @@
 
     <!-- Painel Principal -->
     <div id="painelPrincipal" class="container" style="display: none;">
-        <header>
-            <h1>💅 Amanda Nails Designer</h1>
-            <p class="subtitle">Agenda Mensal - Painel Administrativo</p>
-            <button id="btnSair" class="btn-sair">🚪 Sair</button>
-            <div class="header-controls">
-                <div class="stats">
-                    <div class="stat-card">
-                        <span class="stat-number" id="totalAgendamentos">0</span>
-                        <span class="stat-label">Agendamentos</span>
-                    </div>
-                    <div class="stat-card">
-                        <span class="stat-number" id="horariosLivres">0</span>
-                        <span class="stat-label">Horários Livres</span>
-                    </div>
-                    <div class="status-indicator">
-                        <span class="status-dot" id="statusDot"></span>
-                        <span id="statusText">Conectando...</span>
-                    </div>
-                </div>
-                <div class="admin-controls">
-                    <button id="novoAgendamento" class="btn-primary">➕ Novo Agendamento</button>
-                </div>
-                <div class="month-navigation">
-                    <button id="prevMonth" class="nav-btn">◀ Mês Anterior</button>
-                    <div id="currentMonthDisplay" class="month-display"></div>
-                    <button id="nextMonth" class="nav-btn">Próximo Mês ▶</button>
-                </div>
-            </div>
-        </header>
+        <button id="btnSair" class="btn-sair">🚪 Sair</button>
+        
+        <div class="calendar-header">
+            <button id="prevMonth" class="nav-btn-simple">◀</button>
+            <h2 id="currentMonthDisplay" class="month-title"></h2>
+            <button id="nextMonth" class="nav-btn-simple">▶</button>
+        </div>
 
-        <main>
-            <div class="calendar-container">
-                <div class="loading">
-                    <div class="spinner"></div>
-                    <p>Carregando agenda...</p>
-                </div>
+        <div class="calendar-container">
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Carregando agenda...</p>
             </div>
-        </main>
+        </div>
     </div>
 
     <div id="modal" class="modal">

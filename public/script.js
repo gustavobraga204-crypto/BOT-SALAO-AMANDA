@@ -111,7 +111,6 @@ async function carregarAgendamentos() {
         
         todosAgendamentos = await response.json();
         renderizarCalendario();
-        atualizarEstatisticas();
     } catch (erro) {
         console.error('Erro ao carregar agendamentos:', erro);
     }
@@ -190,7 +189,6 @@ socket.on('disconnect', () => {
 socket.on('agendamentos', (agendamentos) => {
     todosAgendamentos = agendamentos;
     renderizarCalendario();
-    atualizarEstatisticas();
 });
 
 function atualizarStatus(conectado) {
@@ -214,7 +212,7 @@ function renderizarCalendario() {
     // Atualiza display do mês
     const meses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
                    'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
-    document.getElementById('currentMonthDisplay').textContent = `${meses[mes]} ${ano}`;
+    document.getElementById('currentMonthDisplay').textContent = `${meses[mes]} de ${ano}`;
     
     // Primeiro e último dia do mês
     const primeiroDia = new Date(ano, mes, 1);
@@ -303,30 +301,6 @@ function formatarTelefone(tel) {
 function parseData(dataStr) {
     const [dia, mes, ano] = dataStr.split('/').map(Number);
     return new Date(ano, mes - 1, dia);
-}
-
-function atualizarEstatisticas() {
-    const ano = mesAtual.getFullYear();
-    const mes = mesAtual.getMonth();
-    const primeiroDia = new Date(ano, mes, 1);
-    const ultimoDia = new Date(ano, mes + 1, 0);
-    
-    primeiroDia.setHours(0, 0, 0, 0);
-    ultimoDia.setHours(23, 59, 59, 999);
-    
-    const agendamentosMes = todosAgendamentos.filter(ag => {
-        const dataAg = parseData(ag.agendamento.data);
-        return dataAg >= primeiroDia && dataAg <= ultimoDia;
-    });
-    
-    document.getElementById('totalAgendamentos').textContent = agendamentosMes.length;
-    
-    // Calcula horários livres (dias úteis do mês * horários por dia)
-    const diasUteis = ultimoDia.getDate();
-    const totalHorarios = diasUteis * HORARIOS.length;
-    const horariosOcupados = agendamentosMes.length;
-    const horariosLivres = totalHorarios - horariosOcupados;
-    document.getElementById('horariosLivres').textContent = horariosLivres;
 }
 
 // Abrir detalhes de um dia específico
@@ -422,17 +396,42 @@ window.onclick = function(event) {
     }
 }
 
+// Abre modal de agendamento para dias com horários livres
+function abrirModalAgendamentoComData(dataStr) {
+    abrirModalAgendamento();
+    
+    // Converte data BR para formato do input (YYYY-MM-DD)
+    const [dia, mes, ano] = dataStr.split('/');
+    const dataInput = `${ano}-${mes.padStart(2, '0')}-${dia.padStart(2, '0')}`;
+    
+    document.getElementById('dataAgendamento').value = dataInput;
+    atualizarHorariosDisponiveis(dataInput);
+}
+
+// Abre opções para dia com agendamentos (ver ou adicionar novo)
+function abrirDiaParaAgendar(dataStr) {
+    const agendamentosDia = todosAgendamentos.filter(ag => ag.agendamento.data === dataStr);
+    const horariosOcupados = agendamentosDia.map(ag => ag.agendamento.horario);
+    const horariosDisponiveis = HORARIOS.filter(h => !horariosOcupados.includes(h));
+    
+    if (horariosDisponiveis.length > 0) {
+        // Se ainda tem horários livres, abre modal de agendamento
+        abrirModalAgendamentoComData(dataStr);
+    } else {
+        // Se todos ocupados, mostra detalhes
+        abrirDiaDetalhado(dataStr);
+    }
+}
+
 // Navegação de meses
 document.getElementById('prevMonth').addEventListener('click', () => {
     mesAtual.setMonth(mesAtual.getMonth() - 1);
     renderizarCalendario();
-    atualizarEstatisticas();
 });
 
 document.getElementById('nextMonth').addEventListener('click', () => {
     mesAtual.setMonth(mesAtual.getMonth() + 1);
     renderizarCalendario();
-    atualizarEstatisticas();
 });
 
 // Modal de novo agendamento
@@ -519,9 +518,6 @@ function fecharModalAgendamento() {
     document.getElementById('formAgendamento').reset();
 }
 
-// Evento do botão novo agendamento
-document.getElementById('novoAgendamento').addEventListener('click', abrirModalAgendamento);
-
 // Fechar modal de agendamento
 document.querySelector('.close-agendamento').onclick = fecharModalAgendamento;
 
@@ -597,7 +593,6 @@ setInterval(() => {
         .then(agendamentos => {
             todosAgendamentos = agendamentos;
             renderizarCalendario();
-            atualizarEstatisticas();
         })
         .catch(err => console.error('Erro ao atualizar:', err));
 }, 30000);

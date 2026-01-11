@@ -88,7 +88,7 @@ function mostrarPainel() {
 
 // === LÓGICA DO PAINEL ===
 
-// Funções auxiliares para cálculo de duração
+// Funções auxiliares para cálculo de duração e conflitos
 function duracaoEmMinutos(duracao) {
     const match = duracao.match(/(\d+)h(?:(\d+))?|(\d+)min/);
     if (!match) return 90;
@@ -109,23 +109,39 @@ function adicionarMinutos(horario, minutos) {
     return `${String(data.getHours()).padStart(2, '0')}:${String(data.getMinutes()).padStart(2, '0')}`;
 }
 
-function calcularHorariosBloqueados(horarioInicio, duracao) {
-    const durMinutos = duracaoEmMinutos(duracao);
-    const bloqueados = [horarioInicio];
+function calcularHorarioTermino(horarioInicio, duracao) {
+    const durMinutos = duracaoEmMinutos(duracao) - 1; // Remove 1 minuto para liberar o próximo horário
+    return adicionarMinutos(horarioInicio, durMinutos);
+}
+
+function periodosSeConflitam(inicio1, fim1, inicio2, fim2) {
+    const toMinutes = (horario) => {
+        const [h, m] = horario.split(':').map(Number);
+        return h * 60 + m;
+    };
     
-    const intervaloSlot = 90;
-    let minutosRestantes = durMinutos - intervaloSlot;
-    let proximoHorario = horarioInicio;
+    const i1 = toMinutes(inicio1);
+    const f1 = toMinutes(fim1);
+    const i2 = toMinutes(inicio2);
+    const f2 = toMinutes(fim2);
     
-    while (minutosRestantes > 0) {
-        proximoHorario = adicionarMinutos(proximoHorario, intervaloSlot);
-        if (HORARIOS.includes(proximoHorario)) {
-            bloqueados.push(proximoHorario);
+    return (i1 <= i2 && i2 <= f1) || (i2 <= i1 && i1 <= f2);
+}
+
+function verificarDisponibilidade(horarioDesejado, duracaoDesejada, agendamentosExistentes) {
+    const fimDesejado = calcularHorarioTermino(horarioDesejado, duracaoDesejada);
+    
+    for (const agendamento of agendamentosExistentes) {
+        const inicioExistente = agendamento.horario;
+        const duracaoExistente = agendamento.servico?.duracao || agendamento.duracao || '1h30';
+        const fimExistente = calcularHorarioTermino(inicioExistente, duracaoExistente);
+        
+        if (periodosSeConflitam(horarioDesejado, fimDesejado, inicioExistente, fimExistente)) {
+            return false;
         }
-        minutosRestantes -= intervaloSlot;
     }
     
-    return bloqueados;
+    return true;
 }
 
 function inicializarPainel() {
@@ -565,15 +581,17 @@ function abrirModalAgendamentoComData(dataStr) {
 function abrirDiaParaAgendar(dataStr) {
     const agendamentosDia = todosAgendamentos.filter(ag => ag.agendamento.data === dataStr);
     
-    // Calcula todos os horários bloqueados (incluindo slots de duração)
-    const horariosOcupados = [];
-    agendamentosDia.forEach(ag => {
-        const duracao = ag.agendamento.servico?.duracao || '1h30';
-        const bloqueados = calcularHorariosBloqueados(ag.agendamento.horario, duracao);
-        horariosOcupados.push(...bloqueados);
-    });
+    // Mapeia para formato esperado
+    const agendamentosFormatados = agendamentosDia.map(ag => ({
+        horario: ag.agendamento.horario,
+        servico: ag.agendamento.servico,
+        duracao: ag.agendamento.servico?.duracao || '1h30'
+    }));
     
-    const horariosDisponiveis = HORARIOS.filter(h => !horariosOcupados.includes(h));
+    // Verifica quais horários estão disponíveis
+    const horariosDisponiveis = HORARIOS.filter(horario => 
+        verificarDisponibilidade(horario, '1h30', agendamentosFormatados)
+    );
     
     if (horariosDisponiveis.length > 0) {
         // Se ainda tem horários livres, abre modal de agendamento
@@ -697,14 +715,15 @@ async function atualizarHorariosDisponiveis(dataSelecionada = null) {
     const [ano, mes, dia] = dataSelecionada.split('-');
     const dataFormatada = `${dia}/${mes}/${ano}`;
     
-    // Busca agendamentos do dia e calcula horários bloqueados
+    // Busca agendamentos do dia
     const agendamentosDia = todosAgendamentos.filter(ag => ag.agendamento.data === dataFormatada);
-    const horariosOcupados = [];
-    agendamentosDia.forEach(ag => {
-        const duracao = ag.agendamento.servico?.duracao || '1h30';
-        const bloqueados = calcularHorariosBloqueados(ag.agendamento.horario, duracao);
-        horariosOcupados.push(...bloqueados);
-    });
+    
+    // Mapeia para formato esperado
+    const agendamentosFormatados = agendamentosDia.map(ag => ({
+        horario: ag.agendamento.horario,
+        servico: ag.agendamento.servico,
+        duracao: ag.agendamento.servico?.duracao || '1h30'
+    }));
     
     // Obtém o serviço selecionado para verificar disponibilidade
     const servicoSelect = document.getElementById('servicoSelect');
@@ -712,10 +731,9 @@ async function atualizarHorariosDisponiveis(dataSelecionada = null) {
     const duracaoServico = servicoSelecionado?.duracao || '1h30';
     
     // Filtra horários disponíveis considerando a duração do serviço
-    const horariosDisponiveis = HORARIOS.filter(horario => {
-        const horariosBloqueados = calcularHorariosBloqueados(horario, duracaoServico);
-        return !horariosBloqueados.some(h => horariosOcupados.includes(h));
-    });
+    const horariosDisponiveis = HORARIOS.filter(horario => 
+        verificarDisponibilidade(horario, duracaoServico, agendamentosFormatados)
+    );
     
     // Atualiza o select
     horarioSelect.innerHTML = horariosDisponiveis.length > 0 

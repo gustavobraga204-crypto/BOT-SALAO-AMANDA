@@ -140,30 +140,41 @@ export function adicionarMinutos(horario, minutos) {
     return `${String(data.getHours()).padStart(2, '0')}:${String(data.getMinutes()).padStart(2, '0')}`;
 }
 
-// Função para calcular todos os horários bloqueados por um serviço
-export function calcularHorariosBloqueados(horarioInicio, duracao) {
-    const durMinutos = duracaoEmMinutos(duracao);
-    const bloqueados = [horarioInicio];
-    
-    // Cada slot tem 1h30 (90 minutos)
-    const intervaloSlot = 90;
-    let minutosRestantes = durMinutos - intervaloSlot;
-    let proximoHorario = horarioInicio;
-    
-    // Bloqueia os próximos slots necessários
-    while (minutosRestantes > 0) {
-        proximoHorario = adicionarMinutos(proximoHorario, intervaloSlot);
-        if (horarios.includes(proximoHorario)) {
-            bloqueados.push(proximoHorario);
-        }
-        minutosRestantes -= intervaloSlot;
-    }
-    
-    return bloqueados;
+// Função para calcular horário de término (com 1 minuto a menos para liberar o próximo slot)
+export function calcularHorarioTermino(horarioInicio, duracao) {
+    const durMinutos = duracaoEmMinutos(duracao) - 1; // Remove 1 minuto para liberar o próximo horário
+    return adicionarMinutos(horarioInicio, durMinutos);
 }
 
-// Função para verificar se um horário e sua duração estão livres
-export function horarioEDuracaoDisponiveis(horarioInicio, duracao, horariosOcupados) {
-    const horariosBloqueados = calcularHorariosBloqueados(horarioInicio, duracao);
-    return !horariosBloqueados.some(h => horariosOcupados.includes(h));
+// Função para verificar se dois períodos se sobrepõem
+export function periodosSeConflitam(inicio1, fim1, inicio2, fim2) {
+    const toMinutes = (horario) => {
+        const [h, m] = horario.split(':').map(Number);
+        return h * 60 + m;
+    };
+    
+    const i1 = toMinutes(inicio1);
+    const f1 = toMinutes(fim1);
+    const i2 = toMinutes(inicio2);
+    const f2 = toMinutes(fim2);
+    
+    // Verifica se há sobreposição
+    return (i1 <= i2 && i2 <= f1) || (i2 <= i1 && i1 <= f2);
+}
+
+// Função para verificar se um horário está disponível considerando agendamentos existentes
+export function verificarDisponibilidade(horarioDesejado, duracaoDesejada, agendamentosExistentes) {
+    const fimDesejado = calcularHorarioTermino(horarioDesejado, duracaoDesejada);
+    
+    for (const agendamento of agendamentosExistentes) {
+        const inicioExistente = agendamento.horario;
+        const duracaoExistente = agendamento.servico?.duracao || agendamento.duracao || '1h30';
+        const fimExistente = calcularHorarioTermino(inicioExistente, duracaoExistente);
+        
+        if (periodosSeConflitam(horarioDesejado, fimDesejado, inicioExistente, fimExistente)) {
+            return false; // Conflito encontrado
+        }
+    }
+    
+    return true; // Sem conflitos
 }

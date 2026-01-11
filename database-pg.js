@@ -1,5 +1,5 @@
 import pg from 'pg';
-import { calcularHorariosBloqueados } from './dados.js';
+import { verificarDisponibilidade } from './dados.js';
 const { Pool } = pg;
 
 // Configuração do PostgreSQL (usa variável de ambiente DATABASE_URL do Render)
@@ -182,17 +182,15 @@ export async function horarioDisponivelPG(data, horario, duracaoServico = '1h30'
             [data]
         );
         
-        // Calcula todos os horários ocupados (incluindo slots bloqueados)
-        const horariosOcupados = [];
-        result.rows.forEach(ag => {
-            const duracao = ag.servico?.duracao || '1h30';
-            const bloqueados = calcularHorariosBloqueados(ag.horario, duracao);
-            horariosOcupados.push(...bloqueados);
-        });
+        // Mapeia para formato esperado
+        const agendamentosDia = result.rows.map(ag => ({
+            horario: ag.horario,
+            servico: ag.servico,
+            duracao: ag.servico?.duracao || '1h30'
+        }));
         
-        // Verifica se o horário desejado e seus slots necessários estão livres
-        const horariosBloqueados = calcularHorariosBloqueados(horario, duracaoServico);
-        return !horariosBloqueados.some(h => horariosOcupados.includes(h));
+        // Verifica se o horário desejado não conflita com nenhum agendamento existente
+        return verificarDisponibilidade(horario, duracaoServico, agendamentosDia);
     } catch (erro) {
         console.error('Erro ao verificar horário:', erro);
         return true;

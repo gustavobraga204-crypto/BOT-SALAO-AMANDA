@@ -241,6 +241,110 @@ app.get('/qrcode', async (req, res) => {
     }
 });
 
+// API de debug - Ver dados do banco (apenas desenvolvimento)
+app.get('/api/debug/database', async (req, res) => {
+    try {
+        const agendamentos = await obterAgendamentos();
+        const clientes = await obterTodosClientes();
+        
+        res.send(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Debug - Banco de Dados</title>
+                <style>
+                    body {
+                        font-family: 'Courier New', monospace;
+                        padding: 20px;
+                        background: #1e1e1e;
+                        color: #d4d4d4;
+                    }
+                    h1 { color: #4ec9b0; }
+                    h2 { color: #dcdcaa; margin-top: 30px; }
+                    .info { color: #608b4e; margin-bottom: 20px; }
+                    .data {
+                        background: #252526;
+                        border: 1px solid #3c3c3c;
+                        border-radius: 5px;
+                        padding: 15px;
+                        margin: 10px 0;
+                        overflow-x: auto;
+                    }
+                    pre {
+                        margin: 0;
+                        white-space: pre-wrap;
+                        word-wrap: break-word;
+                    }
+                    .count {
+                        background: #0e639c;
+                        color: white;
+                        padding: 5px 15px;
+                        border-radius: 20px;
+                        display: inline-block;
+                        font-weight: bold;
+                    }
+                    .empty {
+                        color: #ce9178;
+                        font-style: italic;
+                    }
+                    .refresh {
+                        position: fixed;
+                        top: 20px;
+                        right: 20px;
+                        padding: 10px 20px;
+                        background: #0e639c;
+                        color: white;
+                        border: none;
+                        border-radius: 5px;
+                        cursor: pointer;
+                        font-size: 14px;
+                    }
+                    .refresh:hover {
+                        background: #1177bb;
+                    }
+                </style>
+            </head>
+            <body>
+                <button class="refresh" onclick="location.reload()">🔄 Atualizar</button>
+                
+                <h1>🔍 Debug - Banco de Dados</h1>
+                <div class="info">
+                    📊 Usando: ${process.env.DATABASE_URL ? 'PostgreSQL' : 'JSON Local'}<br>
+                    🕐 Atualizado em: ${new Date().toLocaleString('pt-BR')}
+                </div>
+                
+                <h2>📅 Agendamentos <span class="count">${agendamentos.length}</span></h2>
+                ${agendamentos.length > 0 ? `
+                    ${agendamentos.map((ag, i) => `
+                        <div class="data">
+                            <strong>Agendamento #${i + 1}</strong>
+                            <pre>${JSON.stringify(ag, null, 2)}</pre>
+                        </div>
+                    `).join('')}
+                ` : '<div class="empty">Nenhum agendamento encontrado</div>'}
+                
+                <h2>👥 Clientes <span class="count">${clientes.length}</span></h2>
+                ${clientes.length > 0 ? `
+                    ${clientes.map((cliente, i) => `
+                        <div class="data">
+                            <strong>Cliente #${i + 1}</strong>
+                            <pre>${JSON.stringify(cliente, null, 2)}</pre>
+                        </div>
+                    `).join('')}
+                ` : '<div class="empty">Nenhum cliente encontrado</div>'}
+            </body>
+            </html>
+        `);
+    } catch (erro) {
+        res.status(500).send(`
+            <h1>❌ Erro ao buscar dados</h1>
+            <pre>${erro.message}\n\n${erro.stack}</pre>
+        `);
+    }
+});
+
 // API para obter todos os agendamentos (protegida)
 app.get('/api/agendamentos', verificarAuth, async (req, res) => {
     const agendamentos = await obterAgendamentos();

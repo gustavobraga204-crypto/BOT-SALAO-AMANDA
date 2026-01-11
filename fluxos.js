@@ -173,9 +173,10 @@ Digite *CONFIRMAR* para finalizar ou *CANCELAR* para desistir.`;
             };
             await salvarAgendamento(de, agendamentoSalvo);
             
-            atualizarSessao(de, 'menu', { nome, telefone });
-            sessao.cadastrado = true;
-            return mensagens.agendamento.sucesso + '\n\nDigite *MENU* para voltar ao menu principal.';
+            // Limpa a sessão após confirmar o agendamento
+            limparSessao(de);
+            
+            return mensagens.agendamento.sucesso + '\n\n✅ Agendamento concluído! Até breve! 👋';
         }
         if (entrada === 'cancelar') {
             atualizarSessao(de, 'menu');

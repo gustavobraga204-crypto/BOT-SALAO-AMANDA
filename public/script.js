@@ -361,37 +361,40 @@ function abrirModal(agendamento) {
     const modalBody = document.getElementById('modalBody');
     
     modalBody.innerHTML = `
-        <div class="modal-header">
-            <div class="modal-cliente-nome">${agendamento.nome}</div>
-            <div class="modal-telefone">📱 ${formatarTelefone(agendamento.telefone)}</div>
+        <div class="mb-3">
+            <h5 class="text-primary">${agendamento.nome}</h5>
+            <p class="text-muted mb-0"><i class="bi bi-telephone"></i> ${formatarTelefone(agendamento.telefone)}</p>
         </div>
-        <div class="modal-body-content">
-            <div class="modal-info-row">
-                <span class="modal-label">📅 Data:</span>
-                <span class="modal-value">${agendamento.agendamento.data}</span>
+        <div class="row mb-2">
+            <div class="col-6">
+                <small class="text-muted"><i class="bi bi-calendar"></i> Data:</small>
+                <p class="mb-0">${agendamento.agendamento.data}</p>
             </div>
-            <div class="modal-info-row">
-                <span class="modal-label">🕐 Horário:</span>
-                <span class="modal-value">${agendamento.agendamento.horario}</span>
+            <div class="col-6">
+                <small class="text-muted"><i class="bi bi-clock"></i> Horário:</small>
+                <p class="mb-0">${agendamento.agendamento.horario}</p>
             </div>
-            <div class="modal-servico-box">
-                <div class="modal-servico-nome">${agendamento.agendamento.servico.nome}</div>
-                <div class="modal-servico-desc">${agendamento.agendamento.servico.descricao}</div>
-                <div class="modal-servico-details">
-                    <span class="modal-valor">${agendamento.agendamento.servico.valor}</span>
-                    <span class="modal-duracao">⏱️ ${agendamento.agendamento.servico.duracao}</span>
+        </div>
+        <div class="card border-primary mb-3">
+            <div class="card-body">
+                <h6 class="card-title text-primary">${agendamento.agendamento.servico.nome}</h6>
+                <p class="card-text small">${agendamento.agendamento.servico.descricao}</p>
+                <div class="d-flex justify-content-between">
+                    <span class="text-success fw-bold">${agendamento.agendamento.servico.valor}</span>
+                    <span class="text-muted"><i class="bi bi-clock"></i> ${agendamento.agendamento.servico.duracao}</span>
                 </div>
             </div>
-            ${agendamento.agendamento.adicionais && agendamento.agendamento.adicionais.length > 0 ? `
-                <div style="margin-top: 15px;">
-                    <strong>Adicionais:</strong><br>
-                    ${agendamento.agendamento.adicionais.map(a => `<span class="adicional-tag">${a}</span>`).join('')}
-                </div>
-            ` : ''}
         </div>
+        ${agendamento.agendamento.adicionais && agendamento.agendamento.adicionais.length > 0 ? `
+            <div class="mb-3">
+                <strong>Adicionais:</strong><br>
+                ${agendamento.agendamento.adicionais.map(a => `<span class="badge bg-secondary me-1">${a}</span>`).join('')}
+            </div>
+        ` : ''}
     `;
     
-    modal.style.display = 'block';
+    const modalElement = new bootstrap.Modal(document.getElementById('modal'));
+    modalElement.show();
 }
 
 // Modal com opção de cancelamento
@@ -400,42 +403,45 @@ function abrirModalCancelamento(agendamento) {
     const modalBody = document.getElementById('modalBody');
     
     modalBody.innerHTML = `
-        <div class="modal-header">
-            <div class="modal-cliente-nome">${agendamento.nome}</div>
-            <div class="modal-telefone">📱 ${formatarTelefone(agendamento.telefone)}</div>
+        <div class="mb-3">
+            <h5 class="text-primary">${agendamento.nome}</h5>
+            <p class="text-muted mb-0"><i class="bi bi-telephone"></i> ${formatarTelefone(agendamento.telefone)}</p>
         </div>
-        <div class="modal-body-content">
-            <div class="modal-info-row">
-                <span class="modal-label">📅 Data:</span>
-                <span class="modal-value">${agendamento.agendamento.data}</span>
+        <div class="row mb-2">
+            <div class="col-6">
+                <small class="text-muted"><i class="bi bi-calendar"></i> Data:</small>
+                <p class="mb-0">${agendamento.agendamento.data}</p>
             </div>
-            <div class="modal-info-row">
-                <span class="modal-label">🕐 Horário:</span>
-                <span class="modal-value">${agendamento.agendamento.horario}</span>
+            <div class="col-6">
+                <small class="text-muted"><i class="bi bi-clock"></i> Horário:</small>
+                <p class="mb-0">${agendamento.agendamento.horario}</p>
             </div>
-            <div class="modal-servico-box">
-                <div class="modal-servico-nome">${agendamento.agendamento.servico.nome}</div>
-                <div class="modal-servico-desc">${agendamento.agendamento.servico.descricao}</div>
-                <div class="modal-servico-details">
-                    <span class="modal-valor">${agendamento.agendamento.servico.valor}</span>
-                    <span class="modal-duracao">⏱️ ${agendamento.agendamento.servico.duracao}</span>
+        </div>
+        <div class="card border-primary mb-3">
+            <div class="card-body">
+                <h6 class="card-title text-primary">${agendamento.agendamento.servico.nome}</h6>
+                <p class="card-text small">${agendamento.agendamento.servico.descricao}</p>
+                <div class="d-flex justify-content-between">
+                    <span class="text-success fw-bold">${agendamento.agendamento.servico.valor}</span>
+                    <span class="text-muted"><i class="bi bi-clock"></i> ${agendamento.agendamento.servico.duracao}</span>
                 </div>
             </div>
-            ${agendamento.agendamento.adicionais && agendamento.agendamento.adicionais.length > 0 ? `
-                <div style="margin-top: 15px;">
-                    <strong>Adicionais:</strong><br>
-                    ${agendamento.agendamento.adicionais.map(a => `<span class="adicional-tag">${a}</span>`).join('')}
-                </div>
-            ` : ''}
-            <div style="margin-top: 25px; padding-top: 20px; border-top: 2px solid var(--border);">
-                <button onclick="cancelarAgendamentoPainel('${agendamento.telefone}', '${agendamento.nome}')" class="btn-cancelar">
-                    ❌ Cancelar Agendamento
-                </button>
+        </div>
+        ${agendamento.agendamento.adicionais && agendamento.agendamento.adicionais.length > 0 ? `
+            <div class="mb-3">
+                <strong>Adicionais:</strong><br>
+                ${agendamento.agendamento.adicionais.map(a => `<span class="badge bg-secondary me-1">${a}</span>`).join('')}
             </div>
+        ` : ''}
+        <div class="d-grid">
+            <button onclick="cancelarAgendamentoPainel('${agendamento.telefone}', '${agendamento.nome}')" class="btn btn-danger">
+                <i class="bi bi-x-circle"></i> Cancelar Agendamento
+            </button>
         </div>
     `;
     
-    modal.style.display = 'block';
+    const modalElement = new bootstrap.Modal(document.getElementById('modal'));
+    modalElement.show();
 }
 
 // Função para cancelar agendamento
@@ -453,7 +459,10 @@ async function cancelarAgendamentoPainel(telefone, nome) {
         });
         
         if (response.ok) {
-            document.getElementById('modal').style.display = 'none';
+            const modalElement = bootstrap.Modal.getInstance(document.getElementById('modal'));
+            if (modalElement) {
+                modalElement.hide();
+            }
             alert('✅ Agendamento cancelado com sucesso!');
             // Atualiza a lista
             carregarAgendamentos();
@@ -519,8 +528,6 @@ document.getElementById('nextMonth').addEventListener('click', () => {
 
 // Modal de novo agendamento
 function abrirModalAgendamento() {
-    const modal = document.getElementById('modalAgendamento');
-    
     // Popula serviços
     const servicoSelect = document.getElementById('servicoSelect');
     servicoSelect.innerHTML = '<option value="">Selecione um serviço</option>';
@@ -531,10 +538,12 @@ function abrirModalAgendamento() {
     // Popula adicionais
     const adicionaisContainer = document.getElementById('adicionaisContainer');
     adicionaisContainer.innerHTML = ADICIONAIS.map(adicional => `
-        <label>
-            <input type="checkbox" name="adicional" value="${adicional}">
-            <span>${adicional}</span>
-        </label>
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="adicional" value="${adicional}" id="adicional_${adicional}">
+            <label class="form-check-label" for="adicional_${adicional}">
+                ${adicional}
+            </label>
+        </div>
     `).join('');
     
     // Popula horários inicialmente
@@ -544,7 +553,8 @@ function abrirModalAgendamento() {
     const hoje = new Date().toISOString().split('T')[0];
     document.getElementById('dataAgendamento').min = hoje;
     
-    modal.style.display = 'block';
+    const modalElement = new bootstrap.Modal(document.getElementById('modalAgendamento'));
+    modalElement.show();
 }
 
 // Atualiza horários disponíveis baseado na data selecionada
@@ -597,12 +607,12 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function fecharModalAgendamento() {
-    document.getElementById('modalAgendamento').style.display = 'none';
+    const modalElement = bootstrap.Modal.getInstance(document.getElementById('modalAgendamento'));
+    if (modalElement) {
+        modalElement.hide();
+    }
     document.getElementById('formAgendamento').reset();
 }
-
-// Fechar modal de agendamento
-document.querySelector('.close-agendamento').onclick = fecharModalAgendamento;
 
 // Submeter formulário
 document.getElementById('formAgendamento').addEventListener('submit', async (e) => {

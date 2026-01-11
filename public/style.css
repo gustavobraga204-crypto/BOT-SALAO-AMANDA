@@ -19,6 +19,12 @@
     --shadow: rgba(255, 105, 180, 0.1);
     --livre: #E8F5E9;
     --ocupado: #FFE5EC;
+    
+    /* Override Bootstrap colors */
+    --bs-primary: #FF69B4;
+    --bs-primary-rgb: 255, 105, 180;
+    --bs-danger: #F44336;
+    --bs-success: #4CAF50;
 }
 
 /* === TELA DE LOGIN === */
@@ -232,6 +238,29 @@ body {
 input, textarea, button, select {
     -webkit-user-select: text;
     user-select: text;
+}
+
+/* Override Bootstrap primary color */
+.btn-primary {
+    background-color: var(--primary) !important;
+    border-color: var(--primary) !important;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-dark) !important;
+    border-color: var(--primary-dark) !important;
+}
+
+.text-primary {
+    color: var(--primary) !important;
+}
+
+.border-primary {
+    border-color: var(--primary) !important;
+}
+
+.card {
+    border-radius: 15px !important;
 }
 
 .container {

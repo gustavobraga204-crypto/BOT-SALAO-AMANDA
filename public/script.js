@@ -237,8 +237,12 @@ function renderizarCalendario() {
     
     // Cabeçalho dos dias da semana
     const diasSemana = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
-    diasSemana.forEach(dia => {
-        html += `<div class="calendar-day-header">${dia}</div>`;
+    const diasSemanaMobile = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
+    diasSemana.forEach((dia, index) => {
+        html += `<div class="calendar-day-header">
+                    <span class="day-desktop">${dia}</span>
+                    <span class="day-mobile">${diasSemanaMobile[index]}</span>
+                 </div>`;
     });
     
     const hoje = new Date();

@@ -422,6 +422,15 @@ body {
     letter-spacing: 0.5px;
 }
 
+/* Versões desktop e mobile dos dias da semana */
+.calendar-day-header .day-mobile {
+    display: none;
+}
+
+.calendar-day-header .day-desktop {
+    display: inline;
+}
+
 .calendar-day {
     aspect-ratio: 1;
     display: flex;

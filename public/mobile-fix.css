@@ -86,18 +86,21 @@
     
     /* Headers dos dias da semana */
     .calendar-day-header {
-        font-size: 0.6rem !important;
-        padding: 0.375rem 0.05rem !important;
+        font-size: 0.65rem !important;
+        padding: 0.375rem 0.1rem !important;
         letter-spacing: 0 !important;
         text-align: center !important;
         text-transform: uppercase !important;
-        white-space: nowrap !important;
-        overflow: hidden !important;
+        font-weight: 700 !important;
     }
     
-    /* Garantir que todos os 7 headers apareçam */
-    .calendar-day-header:nth-child(-n+7) {
-        display: block !important;
+    /* Mostrar apenas versão mobile (1 letra) */
+    .calendar-day-header .day-desktop {
+        display: none !important;
+    }
+    
+    .calendar-day-header .day-mobile {
+        display: inline !important;
     }
     
     /* Dias do calendário - COMPACTOS */

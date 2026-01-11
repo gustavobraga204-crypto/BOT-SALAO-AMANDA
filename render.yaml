@@ -10,3 +10,14 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: bot-salao-db
+          property: connectionString
+
+databases:
+  - name: bot-salao-db
+    databaseName: bot_salao_db
+    user: bot_user
+    region: oregon
+    plan: free

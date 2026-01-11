@@ -661,8 +661,10 @@ function fecharModalAgendamento() {
 document.getElementById('formAgendamento').addEventListener('submit', async (e) => {
     e.preventDefault();
     
-    const nome = document.getElementById('clienteNome').value;
-    const telefone = document.getElementById('clienteTelefone').value;
+    console.log('🚀 Formulário submetido!');
+    
+    const nome = document.getElementById('clienteNome').value.trim();
+    const telefone = document.getElementById('clienteTelefone').value.trim();
     const servicoIndex = document.getElementById('servicoSelect').value;
     const data = document.getElementById('dataAgendamento').value;
     const horario = document.getElementById('horarioSelect').value;
@@ -671,7 +673,15 @@ document.getElementById('formAgendamento').addEventListener('submit', async (e) 
     
     // Valida campos
     if (!nome || !telefone || !servicoIndex || !data || !horario) {
+        console.error('❌ Campos faltando:', { nome: !!nome, telefone: !!telefone, servicoIndex: !!servicoIndex, data: !!data, horario: !!horario });
         alert('❌ Preencha todos os campos obrigatórios');
+        return;
+    }
+    
+    // Valida se o serviço existe
+    if (!SERVICOS[servicoIndex]) {
+        console.error('❌ Serviço inválido:', servicoIndex);
+        alert('❌ Selecione um serviço válido');
         return;
     }
     

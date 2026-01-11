@@ -9,6 +9,27 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Aguarda um pouco para garantir que o DOM está completamente pronto
     await new Promise(resolve => setTimeout(resolve, 100));
     
+    // Registra o event listener do formulário de login
+    const loginForm = document.getElementById('loginForm');
+    if (loginForm) {
+        console.log('✅ Formulário de login encontrado, registrando listener');
+        loginForm.addEventListener('submit', handleLogin);
+    } else {
+        console.error('❌ Formulário de login NÃO encontrado!');
+    }
+    
+    // Registra o botão de sair
+    const btnSair = document.getElementById('btnSair');
+    if (btnSair) {
+        btnSair.addEventListener('click', () => {
+            if (confirm('Deseja realmente sair?')) {
+                localStorage.removeItem('tokenAuth');
+                tokenAuth = null;
+                window.location.reload();
+            }
+        });
+    }
+    
     if (tokenAuth) {
         try {
             console.log('📡 Verificando token com servidor...');
@@ -38,8 +59,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     mostrarLogin();
 });
 
-// Form de login
-document.getElementById('loginForm')?.addEventListener('submit', async (e) => {
+// Função para lidar com o login
+async function handleLogin(e) {
     e.preventDefault();
     
     const usuario = document.getElementById('usuario').value;
@@ -90,16 +111,7 @@ document.getElementById('loginForm')?.addEventListener('submit', async (e) => {
         loginTexto.style.display = 'block';
         loginSpinner.style.display = 'none';
     }
-});
-
-// Botão sair
-document.getElementById('btnSair')?.addEventListener('click', () => {
-    if (confirm('Deseja realmente sair?')) {
-        localStorage.removeItem('tokenAuth');
-        tokenAuth = null;
-        window.location.reload();
-    }
-});
+}
 
 function mostrarLogin() {
     console.log('🔐 Exibindo tela de login');

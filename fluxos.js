@@ -7,6 +7,27 @@ export async function fluxos(de, texto, temImagem = false) {
     const sessao = obterSessao(de);
     const entrada = texto.toLowerCase();
 
+    // Menu inicial - Verifica cadastro primeiro
+    if (['oi', 'ola', 'olá', 'menu', 'inicio', 'iniciar'].includes(entrada)) {
+        // Busca cliente no banco de dados
+        const clienteCadastrado = buscarCliente(de);
+        
+        if (clienteCadastrado) {
+            // Cliente já cadastrado - bem vindo de volta
+            atualizarSessao(de, 'menu', { 
+                nome: clienteCadastrado.nome, 
+                telefone: de,
+                cadastrado: true 
+            });
+            sessao.cadastrado = true;
+            return mensagens.boasVindasRetorno(clienteCadastrado.nome);
+        } else {
+            // Cliente novo - inicia cadastro
+            atualizarSessao(de, 'cadastro_nome');
+            return mensagens.cadastro.solicitarNome;
+        }
+    }
+
     // FLUXO CADASTRO
     if (sessao.etapa === 'cadastro_nome') {
         atualizarSessao(de, 'cadastro_telefone', { nome: texto });
@@ -18,7 +39,7 @@ export async function fluxos(de, texto, temImagem = false) {
         sessao.cadastrado = true;
         
         // Salva cadastro na database
-        cadastrarCliente(de, sessao.dados.nome);
+        await cadastrarCliente(de, sessao.dados.nome);
         
         atualizarSessao(de, 'menu', sessao.dados);
         return mensagens.cadastro.sucesso(sessao.dados.nome) + '\n\n' + mensagens.boasVindas;
@@ -26,18 +47,20 @@ export async function fluxos(de, texto, temImagem = false) {
 
     // Verifica se já está cadastrado antes de acessar menu
     if (!sessao.cadastrado && !['cadastro_nome', 'cadastro_telefone'].includes(sessao.etapa)) {
-        atualizarSessao(de, 'cadastro_nome');
-        return mensagens.cadastro.solicitarNome;
-    }
-
-    // Menu inicial
-    if (['oi', 'ola', 'olá', 'menu', 'inicio', 'iniciar'].includes(entrada)) {
-        atualizarSessao(de, 'menu');
-        // Verifica se é cliente cadastrado para mensagem personalizada
-        if (sessao.cadastrado && sessao.dados.nome) {
-            return mensagens.boasVindasRetorno(sessao.dados.nome);
+        // Busca novamente no banco para garantir
+        const clienteCadastrado = buscarCliente(de);
+        if (clienteCadastrado) {
+            atualizarSessao(de, 'menu', { 
+                nome: clienteCadastrado.nome, 
+                telefone: de,
+                cadastrado: true 
+            });
+            sessao.cadastrado = true;
+            return mensagens.boasVindasRetorno(clienteCadastrado.nome);
+        } else {
+            atualizarSessao(de, 'cadastro_nome');
+            return mensagens.cadastro.solicitarNome;
         }
-        return mensagens.boasVindas;
     }
 
     // Menu principal

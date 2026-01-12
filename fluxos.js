@@ -7,26 +7,8 @@ export async function fluxos(de, texto, temImagem = false) {
     const sessao = obterSessao(de);
     const entrada = texto.toLowerCase();
 
-    // Menu inicial - Verifica cadastro primeiro
-    if (['oi', 'ola', 'olá', 'menu', 'inicio', 'iniciar'].includes(entrada)) {
-        // Busca cliente no banco de dados
-        const clienteCadastrado = buscarCliente(de);
-        
-        if (clienteCadastrado) {
-            // Cliente já cadastrado - bem vindo de volta
-            atualizarSessao(de, 'menu', { 
-                nome: clienteCadastrado.nome, 
-                telefone: de,
-                cadastrado: true 
-            });
-            sessao.cadastrado = true;
-            return mensagens.boasVindasRetorno(clienteCadastrado.nome);
-        } else {
-            // Cliente novo - inicia cadastro
-            atualizarSessao(de, 'cadastro_nome');
-            return mensagens.cadastro.solicitarNome;
-        }
-    }
+    // Início automático - Verifica cadastro primeiro
+    // Sem verificação de palavras-chave, apenas fluxo automático
 
     // FLUXO CADASTRO
     if (sessao.etapa === 'cadastro_nome') {
@@ -130,7 +112,7 @@ export async function fluxos(de, texto, temImagem = false) {
     }
 
     if (sessao.etapa === 'agendamento_adicionais') {
-        if (entrada === '0' || entrada === 'nao' || entrada === 'não') {
+        if (entrada === '0') {
             atualizarSessao(de, 'agendamento_data', { adicionais: [] });
         } else {
             const nomesAdicionais = ['Francesinha', 'Pedrarias', 'Nail art', 'Esmaltação', 'Cutilagem'];
@@ -172,7 +154,7 @@ export async function fluxos(de, texto, temImagem = false) {
 📅 Data: ${sessao.dados.data}
 🕐 Horário: ${sessao.dados.horario}
 
-Digite *CONFIRMAR* para finalizar ou *CANCELAR* para desistir.`;
+Digite *1* para CONFIRMAR ou *0* para CANCELAR.`;
             
             atualizarSessao(de, 'agendamento_confirmacao', sessao.dados);
             return resumo;
@@ -181,7 +163,7 @@ Digite *CONFIRMAR* para finalizar ou *CANCELAR* para desistir.`;
     }
 
     if (sessao.etapa === 'agendamento_confirmacao') {
-        if (entrada === 'confirmar') {
+        if (entrada === '1') {
             // Extrai o valor do serviço e calcula o sinal de 20%
             const valorTexto = sessao.dados.servico.valor;
             const valorMatch = valorTexto.match(/R\$\s*([0-9,\.]+)/);
@@ -204,7 +186,7 @@ Para confirmar seu agendamento, é necessário o pagamento de um sinal de 20%:
 
 📸 *Envie a foto do comprovante* que o agendamento será confirmado automaticamente!
 
-Ou digite *CANCELAR* para desistir do agendamento`;
+Ou digite *0* para cancelar o agendamento`;
                 
                 atualizarSessao(de, 'aguardando_pagamento', { 
                     ...sessao.dados,
@@ -224,7 +206,7 @@ Ou digite *CANCELAR* para desistir do agendamento`;
                 return mensagens.agendamento.sucesso + '\n\n✅ Agendamento concluído! Até breve! 👋';
             }
         }
-        if (entrada === 'cancelar') {
+        if (entrada === '0') {
             atualizarSessao(de, 'menu');
             return 'Agendamento cancelado.\n\n' + mensagens.boasVindas;
         }
@@ -233,7 +215,7 @@ Ou digite *CANCELAR* para desistir do agendamento`;
     // FLUXO PAGAMENTO DO SINAL
     if (sessao.etapa === 'aguardando_pagamento') {
         // Detecta automaticamente quando uma imagem é enviada
-        if (temImagem || entrada === 'comprovante') {
+        if (temImagem) {
             // Salva o agendamento no banco de dados
             const agendamentoSalvo = {
                 servico: sessao.dados.servico,
@@ -259,11 +241,11 @@ Ou digite *CANCELAR* para desistir do agendamento`;
                    `📱 Em caso de dúvidas sobre o pagamento, entraremos em contato.\n\n` +
                    `Até breve! 👋`;
         }
-        if (entrada === 'cancelar') {
+        if (entrada === '0') {
             atualizarSessao(de, 'menu');
-            return 'Agendamento cancelado. O sinal não foi cobrado.\n\nDigite *MENU* para ver as opções.';
+            return 'Agendamento cancelado. O sinal não foi cobrado.\n\n' + mensagens.boasVindas;
         }
-        return '📸 Por favor, *envie a imagem do comprovante* de pagamento do sinal.\n\nOu digite *CANCELAR* para desistir do agendamento.';
+        return '📸 Por favor, *envie a imagem do comprovante* de pagamento do sinal.\n\nOu digite *0* para cancelar o agendamento.';
     }
 
     // FLUXO SERVIÇOS
@@ -271,26 +253,15 @@ Ou digite *CANCELAR* para desistir do agendamento`;
         const num = parseInt(entrada);
         if (num > 0 && num <= servicos.length) {
             const servico = servicos[num - 1];
-            return `
-${servico.nome}
-${servico.descricao}
-💰 ${servico.valor}
-
-Digite *AGENDAR* para agendar este serviço
-Digite *MENU* para voltar ao menu principal`;
-        }
-        if (entrada === 'agendar') {
-            atualizarSessao(de, 'agendamento_nome');
-            return mensagens.agendamento.solicitarNome;
-        }
-    }
-
-    // FLUXO PROMOÇÕES
-    if (sessao.etapa === 'promocoes') {
-        if (entrada === 'agendar') {
             atualizarSessao(de, 'agendamento_servico', { nome: sessao.dados.nome, telefone: sessao.dados.telefone });
             return `Ótimo, ${sessao.dados.nome}!\n\n` + mensagens.listarServicos('agendamento');
         }
+    }
+
+    // FLUXO PROMOÇÕES - redirecionado automaticamente
+    if (sessao.etapa === 'promocoes') {
+        atualizarSessao(de, 'menu');
+        return mensagens.boasVindas;
     }
 
     // ATENDENTE
@@ -301,7 +272,7 @@ Digite *MENU* para voltar ao menu principal`;
 
     // FLUXO CANCELAMENTO
     if (sessao.etapa === 'cancelar_confirmacao') {
-        if (entrada === 'sim' || entrada === 's' || entrada === 'confirmar') {
+        if (entrada === '1') {
             if (cancelarAgendamento(de)) {
                 atualizarSessao(de, 'menu');
                 return mensagens.cancelamento.sucesso;
@@ -310,7 +281,7 @@ Digite *MENU* para voltar ao menu principal`;
                 return mensagens.cancelamento.erro;
             }
         }
-        if (entrada === 'nao' || entrada === 'não' || entrada === 'n') {
+        if (entrada === '0') {
             atualizarSessao(de, 'menu');
             return mensagens.cancelamento.mantido;
         }
@@ -336,7 +307,7 @@ Digite *MENU* para voltar ao menu principal`;
         if (entrada === '0') {
             // Cancelar reagendamento
             atualizarSessao(de, 'menu');
-            return 'Reagendamento cancelado.\n\nDigite *MENU* para ver as opções.';
+            return 'Reagendamento cancelado.\n\n' + mensagens.boasVindas;
         }
     }
 
@@ -384,5 +355,5 @@ Digite *MENU* para voltar ao menu principal`;
         return 'Horário inválido. Digite o número do horário.';
     }
 
-    return 'Opção não reconhecida. Digite *MENU* para ver as opções.';
+    return 'Opção não reconhecida.\n\n' + mensagens.boasVindas;
 }

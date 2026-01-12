@@ -2,7 +2,7 @@ import { makeWASocket, DisconnectReason, useMultiFileAuthState, fetchLatestBaile
 import pino from 'pino';
 import qrcode from 'qrcode-terminal';
 import { fluxos } from './fluxos.js';
-import { carregarDatabase, clienteExiste } from './database.js';
+import { carregarDatabase } from './database.js';
 import { obterSessao } from './sessoes.js';
 
 // Carrega base de dados ao iniciar
@@ -69,11 +69,11 @@ async function conectar() {
             // Palavras de início permitidas
             const palavrasInicio = ['oi', 'olá', 'ola', 'bom dia', 'boa tarde', 'boa noite', 'hello', 'start', 'iniciar'];
             
-            // Verifica se é um cliente completamente novo (nunca interagiu antes)
-            const clienteJaExiste = await clienteExiste(de);
+            // Verifica se o usuário já tem uma sessão (já iniciou conversa)
+            const sessaoAtual = obterSessao(de);
             
-            // Se é a primeira mensagem absoluta (cliente novo), só aceita palavras de início
-            if (!clienteJaExiste && !palavrasInicio.includes(textoNormalizado)) {
+            // Se não tem sessão (primeira mensagem), só aceita palavras de início
+            if (!sessaoAtual && !palavrasInicio.includes(textoNormalizado)) {
                 console.log('⚠️ Primeira mensagem deve ser uma palavra-chave. Ignorado.\n');
                 return;
             }

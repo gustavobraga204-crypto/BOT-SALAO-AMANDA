@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { makeWASocket, DisconnectReason, useMultiFileAuthState, fetchLatestBaileysVersion } from '@whiskeysockets/baileys';
 import pino from 'pino';
 import qrcode from 'qrcode-terminal';

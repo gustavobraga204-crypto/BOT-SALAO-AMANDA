@@ -2,7 +2,7 @@ import { makeWASocket, DisconnectReason, useMultiFileAuthState, fetchLatestBaile
 import pino from 'pino';
 import qrcode from 'qrcode-terminal';
 import { fluxos } from './fluxos.js';
-import { carregarDatabase } from './database.js';
+import { carregarDatabase, clienteExiste } from './database.js';
 import { obterSessao } from './sessoes.js';
 
 // Carrega base de dados ao iniciar
@@ -69,21 +69,24 @@ async function conectar() {
             // Palavras de início permitidas
             const palavrasInicio = ['oi', 'olá', 'ola', 'bom dia', 'boa tarde', 'boa noite', 'hello', 'start', 'iniciar'];
             
-            // Verifica se o usuário tem sessão ativa
-            const sessaoAtual = obterSessao(de);
+            // Verifica se é um cliente completamente novo (nunca interagiu antes)
+            const clienteJaExiste = await clienteExiste(de);
             
-            // Se não tem sessão nenhuma (primeira vez), só aceita palavras de início - IGNORA silenciosamente
-            if (!sessaoAtual && !palavrasInicio.includes(textoNormalizado)) {
-                console.log('⚠️ Mensagem ignorada - palavra de início inválida (usuário novo)');
+            // Se é a primeira mensagem absoluta (cliente novo), só aceita palavras de início
+            if (!clienteJaExiste && !palavrasInicio.includes(textoNormalizado)) {
+                console.log('⚠️ Primeira mensagem deve ser uma palavra-chave. Ignorado.\n');
                 return;
             }
 
             const resposta = fluxos(de, texto.trim());
+            console.log('💬 Resposta gerada:', resposta ? resposta.substring(0, 50) + '...' : 'NENHUMA');
             
             if (resposta) {
                 await new Promise(r => setTimeout(r, 1500));
                 await sock.sendMessage(de, { text: resposta });
                 console.log('✅ Resposta enviada\n');
+            } else {
+                console.log('⚠️ Nenhuma resposta para enviar\n');
             }
         });
     } catch (erro) {

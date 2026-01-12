@@ -62,10 +62,17 @@ async function conectar() {
 
             const de = msg.key.remoteJid;
             const texto = msg.message?.conversation || msg.message?.extendedTextMessage?.text || '';
+            
+            // Detecta se é uma imagem (comprovante)
+            const temImagem = !!(msg.message?.imageMessage || msg.message?.extendedTextMessage?.contextInfo?.quotedMessage?.imageMessage);
 
-            console.log(`📨 ${de.split('@')[0]}: ${texto}`);
+            if (temImagem) {
+                console.log(`📨 ${de.split('@')[0]}: [IMAGEM RECEBIDA]`);
+            } else {
+                console.log(`📨 ${de.split('@')[0]}: ${texto}`);
+            }
 
-            const resposta = fluxos(de, texto.trim());
+            const resposta = fluxos(de, texto.trim(), temImagem);
             console.log('💬 Resposta gerada:', resposta ? resposta.substring(0, 50) + '...' : 'NENHUMA');
             
             if (resposta) {

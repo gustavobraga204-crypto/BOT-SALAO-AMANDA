@@ -3,7 +3,7 @@ import { mensagens } from './mensagens.js';
 import { servicos, promocoes, horarios } from './dados.js';
 import { cadastrarCliente, buscarCliente, salvarAgendamento, buscarAgendamento, cancelarAgendamento, horarioDisponivel } from './database.js';
 
-export async function fluxos(de, texto) {
+export async function fluxos(de, texto, temImagem = false) {
     const sessao = obterSessao(de);
     const entrada = texto.toLowerCase();
 
@@ -159,27 +159,88 @@ Digite *CONFIRMAR* para finalizar ou *CANCELAR* para desistir.`;
 
     if (sessao.etapa === 'agendamento_confirmacao') {
         if (entrada === 'confirmar') {
-            const nome = sessao.dados.nome;
-            const telefone = sessao.dados.telefone;
+            // Extrai o valor do serviço e calcula o sinal de 20%
+            const valorTexto = sessao.dados.servico.valor;
+            const valorMatch = valorTexto.match(/R\$\s*([0-9,\.]+)/);
             
+            if (valorMatch) {
+                const valorNumerico = parseFloat(valorMatch[1].replace(',', '.'));
+                const sinalValor = (valorNumerico * 0.20).toFixed(2).replace('.', ',');
+                
+                const mensagemSinal = `
+💰 *SINAL DE CONFIRMAÇÃO*
+
+Para confirmar seu agendamento, é necessário o pagamento de um sinal de 20%:
+
+📊 Valor do serviço: R$ ${valorNumerico.toFixed(2).replace('.', ',')}
+💵 Valor do sinal (20%): R$ ${sinalValor}
+
+🏦 *Dados para pagamento:*
+📱 PIX (Celular): (11) 98642-3634
+👤 Nome: Amanda Nails Designer
+
+📸 *Envie a foto do comprovante* que o agendamento será confirmado automaticamente!
+
+Ou digite *CANCELAR* para desistir do agendamento`;
+                
+                atualizarSessao(de, 'aguardando_pagamento', { 
+                    ...sessao.dados,
+                    sinalValor: sinalValor
+                });
+                return mensagemSinal;
+            } else {
+                // Se não conseguir extrair o valor, continua normalmente
+                const agendamentoSalvo = {
+                    servico: sessao.dados.servico,
+                    adicionais: sessao.dados.adicionais,
+                    data: sessao.dados.data,
+                    horario: sessao.dados.horario
+                };
+                await salvarAgendamento(de, agendamentoSalvo);
+                limparSessao(de);
+                return mensagens.agendamento.sucesso + '\n\n✅ Agendamento concluído! Até breve! 👋';
+            }
+        }
+        if (entrada === 'cancelar') {
+            atualizarSessao(de, 'menu');
+            return 'Agendamento cancelado.\n\n' + mensagens.boasVindas;
+        }
+    }
+
+    // FLUXO PAGAMENTO DO SINAL
+    if (sessao.etapa === 'aguardando_pagamento') {
+        // Detecta automaticamente quando uma imagem é enviada
+        if (temImagem || entrada === 'comprovante') {
             // Salva o agendamento no banco de dados
             const agendamentoSalvo = {
                 servico: sessao.dados.servico,
                 adicionais: sessao.dados.adicionais,
                 data: sessao.dados.data,
-                horario: sessao.dados.horario
+                horario: sessao.dados.horario,
+                sinalPago: true,
+                valorSinal: sessao.dados.sinalValor,
+                dataComprovante: new Date().toISOString()
             };
             await salvarAgendamento(de, agendamentoSalvo);
             
             // Limpa a sessão após confirmar o agendamento
             limparSessao(de);
             
-            return mensagens.agendamento.sucesso + '\n\n✅ Agendamento concluído! Até breve! 👋';
+            return `✅ *COMPROVANTE RECEBIDO!*\n\n` + 
+                   `Seu comprovante foi recebido e está sendo analisado pela nossa equipe.\n\n` +
+                   mensagens.agendamento.sucesso + 
+                   `\n\n💰 Sinal: R$ ${sessao.dados.sinalValor}\n` +
+                   `📋 Agendamento confirmado!\n` +
+                   `📅 Data: ${sessao.dados.data}\n` +
+                   `🕐 Horário: ${sessao.dados.horario}\n\n` +
+                   `📱 Em caso de dúvidas sobre o pagamento, entraremos em contato.\n\n` +
+                   `Até breve! 👋`;
         }
         if (entrada === 'cancelar') {
             atualizarSessao(de, 'menu');
-            return 'Agendamento cancelado.\n\n' + mensagens.boasVindas;
+            return 'Agendamento cancelado. O sinal não foi cobrado.\n\nDigite *MENU* para ver as opções.';
         }
+        return '📸 Por favor, *envie a imagem do comprovante* de pagamento do sinal.\n\nOu digite *CANCELAR* para desistir do agendamento.';
     }
 
     // FLUXO SERVIÇOS

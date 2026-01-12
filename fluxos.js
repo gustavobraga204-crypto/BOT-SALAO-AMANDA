@@ -9,9 +9,6 @@ export async function fluxos(de, texto) {
 
     // FLUXO CADASTRO
     if (sessao.etapa === 'cadastro_nome') {
-        if (['oi', 'ola', 'olá', 'inicio', 'iniciar'].includes(entrada)) {
-            return mensagens.cadastro.solicitarNome;
-        }
         atualizarSessao(de, 'cadastro_telefone', { nome: texto });
         return mensagens.cadastro.solicitarTelefone;
     }

@@ -71,11 +71,10 @@ async function conectar() {
             
             // Verifica se o usuário tem sessão ativa
             const sessaoAtual = obterSessao(de);
-            const temSessaoAtiva = sessaoAtual && sessaoAtual.etapa && sessaoAtual.etapa !== 'cadastro_nome';
             
-            // Se não tem sessão ativa, só aceita palavras de início - IGNORA silenciosamente
-            if (!temSessaoAtiva && !palavrasInicio.includes(textoNormalizado)) {
-                console.log('⚠️ Mensagem ignorada - palavra de início inválida');
+            // Se não tem sessão nenhuma (primeira vez), só aceita palavras de início - IGNORA silenciosamente
+            if (!sessaoAtual && !palavrasInicio.includes(textoNormalizado)) {
+                console.log('⚠️ Mensagem ignorada - palavra de início inválida (usuário novo)');
                 return;
             }
 

@@ -7,9 +7,6 @@ export async function fluxos(de, texto, temImagem = false) {
     const sessao = obterSessao(de);
     const entrada = texto.toLowerCase();
 
-    // Início automático - Verifica cadastro primeiro
-    // Sem verificação de palavras-chave, apenas fluxo automático
-
     // FLUXO CADASTRO
     if (sessao.etapa === 'cadastro_nome') {
         atualizarSessao(de, 'cadastro_telefone', { nome: texto });

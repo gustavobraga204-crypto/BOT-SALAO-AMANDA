@@ -7,12 +7,13 @@ export async function fluxos(de, texto, temImagem = false) {
     const sessao = obterSessao(de);
     const entrada = texto.toLowerCase();
 
-    // FLUXO CADASTRO
+    // FLUXO CADASTRO - Nome
     if (sessao.etapa === 'cadastro_nome') {
         atualizarSessao(de, 'cadastro_telefone', { nome: texto });
         return mensagens.cadastro.solicitarTelefone;
     }
 
+    // FLUXO CADASTRO - Telefone
     if (sessao.etapa === 'cadastro_telefone') {
         sessao.dados.telefone = texto;
         sessao.cadastrado = true;
@@ -26,9 +27,10 @@ export async function fluxos(de, texto, temImagem = false) {
 
     // Verifica se já está cadastrado antes de acessar menu
     if (!sessao.cadastrado && !['cadastro_nome', 'cadastro_telefone'].includes(sessao.etapa)) {
-        // Busca novamente no banco para garantir
+        // Busca no banco de dados
         const clienteCadastrado = buscarCliente(de);
         if (clienteCadastrado) {
+            // Cliente já cadastrado - vai direto ao menu
             atualizarSessao(de, 'menu', { 
                 nome: clienteCadastrado.nome, 
                 telefone: de,
@@ -37,6 +39,7 @@ export async function fluxos(de, texto, temImagem = false) {
             sessao.cadastrado = true;
             return mensagens.boasVindasRetorno(clienteCadastrado.nome);
         } else {
+            // Cliente novo - inicia cadastro pedindo NOME
             atualizarSessao(de, 'cadastro_nome');
             return mensagens.cadastro.solicitarNome;
         }
